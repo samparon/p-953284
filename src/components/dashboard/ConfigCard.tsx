@@ -4,9 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Settings2 } from 'lucide-react';
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
 const ConfigCard = () => {
+  // Get Supabase URL and key from the client's internal config
+  const supabaseUrl = supabase.supabaseUrl;
+  const supabaseKey = supabase.supabaseKey;
+  
   const [zapierWebhook, setZapierWebhook] = React.useState(localStorage.getItem('zapierWebhook') || '');
 
   const handleZapierWebhookChange = (value: string) => {
@@ -31,7 +35,7 @@ const ConfigCard = () => {
             <Label htmlFor="supabaseUrl">URL do Supabase</Label>
             <Input
               id="supabaseUrl"
-              value={SUPABASE_URL}
+              value={supabaseUrl}
               readOnly
               className="bg-gray-50 dark:bg-gray-800"
             />
@@ -40,7 +44,7 @@ const ConfigCard = () => {
             <Label htmlFor="supabaseKey">Chave Anônima do Supabase</Label>
             <Input
               id="supabaseKey"
-              value={SUPABASE_PUBLISHABLE_KEY}
+              value={supabaseKey}
               readOnly
               className="bg-gray-50 dark:bg-gray-800 font-mono text-sm"
             />
