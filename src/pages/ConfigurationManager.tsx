@@ -29,8 +29,8 @@ const defaultEndpoints = {
 
 const endpointGroups = {
   'Configuração Supabase': [
-    { id: 'supabaseUrl', label: 'URL do Supabase', value: process.env.SUPABASE_URL, readOnly: true },
-    { id: 'supabaseKey', label: 'Chave Anônima do Supabase', value: process.env.SUPABASE_ANON_KEY, readOnly: true }
+    { id: 'supabaseUrl', label: 'URL do Supabase', value: import.meta.env.VITE_SUPABASE_URL || '', readOnly: true },
+    { id: 'supabaseKey', label: 'Chave Anônima do Supabase', value: import.meta.env.VITE_SUPABASE_ANON_KEY || '', readOnly: true }
   ],
   'Configuração da Agenda': [
     { id: 'agenda', label: 'URL Base da Agenda', key: 'agenda' },
