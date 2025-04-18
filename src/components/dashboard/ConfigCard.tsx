@@ -5,19 +5,68 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Settings2 } from 'lucide-react';
 
-// Import directly from the client file where these constants are defined
+// Supabase constants
 const SUPABASE_URL = "https://yrpespcdsvqibwhzfetp.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlycGVzcGNkc3ZxaWJ3aHpmZXRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0Mzc0OTIsImV4cCI6MjA1ODAxMzQ5Mn0.58Fr1ANSTydrKbiAIvoJwnP7jmYFSYVqCa5MeRZ71bc";
 
-// Calendar API endpoint
-const CALENDAR_API_URL = "https://webhook.n8nlabz.com.br/webhook/agenda";
+// Default webhook base URL
+const DEFAULT_WEBHOOK_BASE = "https://webhook.n8nlabz.com.br/webhook";
+
+// Webhook endpoints configuration
+const defaultEndpoints = {
+  mensagem: `${DEFAULT_WEBHOOK_BASE}/envia_mensagem`,
+  pausaBot: `${DEFAULT_WEBHOOK_BASE}/pausa_bot`,
+  iniciaBot: `${DEFAULT_WEBHOOK_BASE}/inicia_bot`,
+  agenda: `${DEFAULT_WEBHOOK_BASE}/agenda`,
+  agendaAlterar: `${DEFAULT_WEBHOOK_BASE}/agenda/alterar`,
+  agendaAdicionar: `${DEFAULT_WEBHOOK_BASE}/agenda/adicionar`,
+  agendaExcluir: `${DEFAULT_WEBHOOK_BASE}/agenda/excluir`,
+  enviaRag: `${DEFAULT_WEBHOOK_BASE}/envia_rag`,
+  excluirArquivoRag: `${DEFAULT_WEBHOOK_BASE}/excluir-arquivo-rag`,
+  excluirRag: `${DEFAULT_WEBHOOK_BASE}/excluir-rag`,
+  instanciaEvolution: `${DEFAULT_WEBHOOK_BASE}/instanciaevolution`,
+  atualizarQrCode: `${DEFAULT_WEBHOOK_BASE}/atualizar-qr-code`,
+  confirma: `${DEFAULT_WEBHOOK_BASE}/confirma`,
+};
 
 const ConfigCard = () => {
-  const [zapierWebhook, setZapierWebhook] = React.useState(localStorage.getItem('zapierWebhook') || '');
+  const [endpoints, setEndpoints] = React.useState(() => {
+    const savedEndpoints = localStorage.getItem('webhookEndpoints');
+    return savedEndpoints ? JSON.parse(savedEndpoints) : defaultEndpoints;
+  });
 
-  const handleZapierWebhookChange = (value: string) => {
-    setZapierWebhook(value);
-    localStorage.setItem('zapierWebhook', value);
+  const handleEndpointChange = (key: string, value: string) => {
+    const newEndpoints = { ...endpoints, [key]: value };
+    setEndpoints(newEndpoints);
+    localStorage.setItem('webhookEndpoints', JSON.stringify(newEndpoints));
+  };
+
+  const endpointGroups = {
+    'Configuração Supabase': [
+      { id: 'supabaseUrl', label: 'URL do Supabase', value: SUPABASE_URL, readOnly: true },
+      { id: 'supabaseKey', label: 'Chave Anônima do Supabase', value: SUPABASE_PUBLISHABLE_KEY, readOnly: true }
+    ],
+    'Configuração da Agenda': [
+      { id: 'agenda', label: 'URL Base da Agenda', key: 'agenda' },
+      { id: 'agendaAdicionar', label: 'Adicionar Evento', key: 'agendaAdicionar' },
+      { id: 'agendaAlterar', label: 'Alterar Evento', key: 'agendaAlterar' },
+      { id: 'agendaExcluir', label: 'Excluir Evento', key: 'agendaExcluir' }
+    ],
+    'Configuração do Bot': [
+      { id: 'mensagem', label: 'Enviar Mensagem', key: 'mensagem' },
+      { id: 'pausaBot', label: 'Pausar Bot', key: 'pausaBot' },
+      { id: 'iniciaBot', label: 'Iniciar Bot', key: 'iniciaBot' },
+      { id: 'confirma', label: 'Confirmar', key: 'confirma' }
+    ],
+    'Configuração RAG': [
+      { id: 'enviaRag', label: 'Enviar RAG', key: 'enviaRag' },
+      { id: 'excluirArquivoRag', label: 'Excluir Arquivo RAG', key: 'excluirArquivoRag' },
+      { id: 'excluirRag', label: 'Excluir RAG', key: 'excluirRag' }
+    ],
+    'Configuração Evolution': [
+      { id: 'instanciaEvolution', label: 'Instância Evolution', key: 'instanciaEvolution' },
+      { id: 'atualizarQrCode', label: 'Atualizar QR Code', key: 'atualizarQrCode' }
+    ]
   };
 
   return (
@@ -33,59 +82,27 @@ const ConfigCard = () => {
       </CardHeader>
       <CardContent>
         <div className="grid gap-6">
-          {/* Supabase Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Configuração Supabase</h3>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="supabaseUrl">URL do Supabase</Label>
-                <Input
-                  id="supabaseUrl"
-                  value={SUPABASE_URL}
-                  readOnly
-                  className="bg-gray-50 dark:bg-gray-800"
-                />
-              </div>
-              <div>
-                <Label htmlFor="supabaseKey">Chave Anônima do Supabase</Label>
-                <Input
-                  id="supabaseKey"
-                  value={SUPABASE_PUBLISHABLE_KEY}
-                  readOnly
-                  className="bg-gray-50 dark:bg-gray-800 font-mono text-sm"
-                />
+          {Object.entries(endpointGroups).map(([groupTitle, fields]) => (
+            <div key={groupTitle} className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                {groupTitle}
+              </h3>
+              <div className="space-y-4">
+                {fields.map((field) => (
+                  <div key={field.id}>
+                    <Label htmlFor={field.id}>{field.label}</Label>
+                    <Input
+                      id={field.id}
+                      value={field.readOnly ? field.value : endpoints[field.key as keyof typeof endpoints]}
+                      onChange={field.readOnly ? undefined : (e) => handleEndpointChange(field.key, e.target.value)}
+                      readOnly={field.readOnly}
+                      className={`${field.readOnly ? 'bg-gray-50 dark:bg-gray-800' : ''} font-mono text-sm`}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-
-          {/* Calendar API Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Configuração da Agenda</h3>
-            <div>
-              <Label htmlFor="calendarApi">URL da API de Agenda</Label>
-              <Input
-                id="calendarApi"
-                value={CALENDAR_API_URL}
-                readOnly
-                className="bg-gray-50 dark:bg-gray-800 font-mono text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Zapier Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Configuração Zapier</h3>
-            <div>
-              <Label htmlFor="zapierWebhook">URL do Webhook Zapier</Label>
-              <Input
-                id="zapierWebhook"
-                value={zapierWebhook}
-                onChange={(e) => handleZapierWebhookChange(e.target.value)}
-                placeholder="Cole aqui a URL do seu webhook Zapier"
-                className="font-mono text-sm"
-              />
-            </div>
-          </div>
+          ))}
         </div>
       </CardContent>
     </Card>
