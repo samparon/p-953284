@@ -13,6 +13,7 @@ import ClientsDashboard from "./pages/ClientsDashboard";
 import Evolution from "./pages/Evolution";
 import Schedule from "./pages/Schedule";
 import NotFound from "./pages/NotFound";
+import ConfigurationManager from "./pages/ConfigurationManager";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 
