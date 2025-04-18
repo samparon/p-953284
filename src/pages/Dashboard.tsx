@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -9,6 +10,7 @@ import KnowledgeCard from '@/components/dashboard/KnowledgeCard';
 import ClientsCard from '@/components/dashboard/ClientsCard';
 import EvolutionCard from '@/components/dashboard/EvolutionCard';
 import ScheduleCard from '@/components/dashboard/ScheduleCard';
+import ConfigCard from '@/components/dashboard/ConfigCard';
 
 const Dashboard = () => {
   const { user, isLoading } = useAuth();
@@ -47,6 +49,7 @@ const Dashboard = () => {
           <ClientsCard />
           <EvolutionCard />
           <ScheduleCard />
+          <ConfigCard />
         </div>
       </main>
     </div>
