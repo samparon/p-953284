@@ -1,4 +1,3 @@
-
 import { format, endOfDay } from 'date-fns';
 import { toast } from "sonner";
 import { CalendarEvent, EventFormData } from '@/types/calendar';
@@ -11,7 +10,7 @@ const getEndpoints = () => {
 };
 
 // Get the correct endpoint URL based on agenda type
-const getApiUrl = (endpoint: string, agendaType: AgendaType = 'geral') => {
+const getApiUrl = (endpoint: string, agendaType: AgendaType = 'banho') => {
   const endpoints = getEndpoints();
   
   // Map base endpoint names to their specific agenda type variants
@@ -20,32 +19,24 @@ const getApiUrl = (endpoint: string, agendaType: AgendaType = 'geral') => {
       switch (agendaType) {
         case 'banho': return endpoints.agendaBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/banho';
         case 'vet': return endpoints.agendaVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/vet';
-        case 'geral':
-        default: return endpoints.agenda || 'https://webhook.n8nlabz.com.br/webhook/agenda';
       }
     case 'adicionar':
       switch (agendaType) {
         case 'banho': return endpoints.agendaAdicionarBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/adicionar/banho';
         case 'vet': return endpoints.agendaAdicionarVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/adicionar/vet';
-        case 'geral':
-        default: return endpoints.agendaAdicionar || 'https://webhook.n8nlabz.com.br/webhook/agenda/adicionar';
       }
     case 'alterar':
       switch (agendaType) {
         case 'banho': return endpoints.agendaAlterarBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/alterar/banho';
         case 'vet': return endpoints.agendaAlterarVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/alterar/vet';
-        case 'geral':
-        default: return endpoints.agendaAlterar || 'https://webhook.n8nlabz.com.br/webhook/agenda/alterar';
       }
     case 'excluir':
       switch (agendaType) {
         case 'banho': return endpoints.agendaExcluirBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/excluir/banho';
         case 'vet': return endpoints.agendaExcluirVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/excluir/vet';
-        case 'geral':
-        default: return endpoints.agendaExcluir || 'https://webhook.n8nlabz.com.br/webhook/agenda/excluir';
       }
     default:
-      return endpoints.agenda || 'https://webhook.n8nlabz.com.br/webhook/agenda';
+      return endpoints.agendaBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/banho';
   }
 };
 

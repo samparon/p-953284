@@ -1,10 +1,10 @@
 
 import { useState, useCallback } from 'react';
 
-export type AgendaType = 'geral' | 'banho' | 'vet';
+export type AgendaType = 'banho' | 'vet';
 
 export function useAgendaType() {
-  const [agendaType, setAgendaType] = useState<AgendaType>('geral');
+  const [agendaType, setAgendaType] = useState<AgendaType>('banho');
 
   const changeAgendaType = useCallback((type: AgendaType) => {
     setAgendaType(type);
@@ -16,9 +16,6 @@ export function useAgendaType() {
         return '/banho';
       case 'vet':
         return '/vet';
-      case 'geral':
-      default:
-        return '';
     }
   }, [agendaType]);
 
@@ -26,7 +23,6 @@ export function useAgendaType() {
     agendaType,
     changeAgendaType,
     getEndpointSuffix,
-    isGeral: agendaType === 'geral',
     isBanho: agendaType === 'banho',
     isVet: agendaType === 'vet'
   };

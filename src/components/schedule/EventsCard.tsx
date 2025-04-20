@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format } from 'date-fns';
 import { CalendarEvent } from '@/types/calendar';
@@ -45,7 +44,7 @@ export function EventsCard({
   onEditEvent,
   onDeleteEvent,
   onOpenEventLink,
-  agendaType = 'geral'
+  agendaType = 'banho'
 }: EventsCardProps) {
   const getAgendaIcon = () => {
     switch (agendaType) {
@@ -59,15 +58,13 @@ export function EventsCard({
   };
 
   const getAgendaTitle = () => {
-    switch (agendaType) {
-      case 'banho':
-        return 'Agenda de Banho e Tosa';
-      case 'vet':
-        return 'Agenda de Consultas Veterinárias';
-      default:
-        return 'Agenda PetShop Pet Paradise';
-    }
-  };
+  switch (agendaType) {
+    case 'banho':
+      return 'Agenda de Banho e Tosa';
+    case 'vet':
+      return 'Agenda de Consultas Veterinárias';
+  }
+};
 
   return (
     <Card>
