@@ -41,7 +41,7 @@ const getApiUrl = (endpoint: string, agendaType: AgendaType = 'banho') => {
 };
 
 // Fetch events with GET method
-export async function fetchCalendarEvents(agendaType: AgendaType = 'geral', selectedDate?: Date | null) {
+export async function fetchCalendarEvents(agendaType: AgendaType = 'banho', selectedDate?: Date | null) {
   try {
     // Format date parameters for the API
     let url = getApiUrl('base', agendaType);
@@ -70,7 +70,7 @@ export async function fetchCalendarEvents(agendaType: AgendaType = 'geral', sele
 }
 
 // Refresh events with POST method
-export async function refreshCalendarEventsPost(agendaType: AgendaType = 'geral', selectedDate?: Date | null) {
+export async function refreshCalendarEventsPost(agendaType: AgendaType = 'banho', selectedDate?: Date | null) {
   try {
     // Create payload with selected date if available
     const payload: any = {};
@@ -107,7 +107,7 @@ export async function refreshCalendarEventsPost(agendaType: AgendaType = 'geral'
 }
 
 // Add a new event
-export async function addCalendarEvent(formData: EventFormData, agendaType: AgendaType = 'geral') {
+export async function addCalendarEvent(formData: EventFormData, agendaType: AgendaType = 'banho') {
   try {
     // Format the date and times for the API
     const { date, startTime, endTime, summary, description, email } = formData;
@@ -148,7 +148,7 @@ export async function addCalendarEvent(formData: EventFormData, agendaType: Agen
 }
 
 // Edit an existing event
-export async function editCalendarEvent(eventId: string, formData: EventFormData, agendaType: AgendaType = 'geral') {
+export async function editCalendarEvent(eventId: string, formData: EventFormData, agendaType: AgendaType = 'banho') {
   try {
     // Format the date and times for the API
     const { date, startTime, endTime, summary, description, email } = formData;
@@ -190,7 +190,7 @@ export async function editCalendarEvent(eventId: string, formData: EventFormData
 }
 
 // Delete an event
-export async function deleteCalendarEvent(eventId: string, agendaType: AgendaType = 'geral') {
+export async function deleteCalendarEvent(eventId: string, agendaType: AgendaType = 'banho') {
   try {
     const payload = {
       id: eventId

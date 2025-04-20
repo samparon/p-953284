@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { pt } from 'date-fns/locale';
@@ -29,7 +28,7 @@ export function EventsTable({
   onEditEvent, 
   onDeleteEvent, 
   onOpenEventLink,
-  agendaType = 'geral'
+  agendaType = 'banho'
 }: EventsTableProps) {
   
   const getStatusColor = (status: string, responseStatus?: string) => {
