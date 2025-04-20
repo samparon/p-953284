@@ -8,9 +8,10 @@ import {
   deleteCalendarEvent 
 } from '@/services/calendarApi';
 import { CalendarEvent, EventFormData } from '@/types/calendar';
+import { AgendaType } from '@/hooks/useAgendaType';
 import { toast } from 'sonner';
 
-export function useCalendarEvents(selectedDate?: Date | null) {
+export function useCalendarEvents(agendaType: AgendaType = 'geral', selectedDate?: Date | null) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -20,12 +21,12 @@ export function useCalendarEvents(selectedDate?: Date | null) {
   // Function to fetch events
   const fetchEvents = useCallback(async () => {
     try {
-      const fetchedEvents = await fetchCalendarEvents(selectedDate);
+      const fetchedEvents = await fetchCalendarEvents(agendaType, selectedDate);
       setEvents(fetchedEvents);
       setLastUpdated(new Date());
       setError(null);
     } catch (err) {
-      console.error('Error in useCalendarEvents:', err);
+      console.error(`Error in useCalendarEvents for ${agendaType}:`, err);
       setError(err instanceof Error ? err : new Error('Unknown error occurred'));
       
       // Only show the toast if we don't already have events loaded
@@ -35,13 +36,13 @@ export function useCalendarEvents(selectedDate?: Date | null) {
     } finally {
       setIsLoading(false);
     }
-  }, [events.length, selectedDate]);
+  }, [events.length, selectedDate, agendaType]);
 
   // Function to refresh events using POST method
   const refreshEventsPost = useCallback(async () => {
     setIsLoading(true);
     try {
-      const refreshedEvents = await refreshCalendarEventsPost(selectedDate);
+      const refreshedEvents = await refreshCalendarEventsPost(agendaType, selectedDate);
       setEvents(refreshedEvents);
       setLastUpdated(new Date());
       setError(null);
@@ -50,13 +51,13 @@ export function useCalendarEvents(selectedDate?: Date | null) {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedDate]);
+  }, [selectedDate, agendaType]);
 
   // Add a new event
   const addEvent = async (formData: EventFormData) => {
     setIsSubmitting(true);
     try {
-      const success = await addCalendarEvent(formData);
+      const success = await addCalendarEvent(formData, agendaType);
       if (success) {
         await fetchEvents(); // Refresh events
       }
@@ -70,7 +71,7 @@ export function useCalendarEvents(selectedDate?: Date | null) {
   const editEvent = async (eventId: string, formData: EventFormData) => {
     setIsSubmitting(true);
     try {
-      const success = await editCalendarEvent(eventId, formData);
+      const success = await editCalendarEvent(eventId, formData, agendaType);
       if (success) {
         await fetchEvents(); // Refresh events
       }
@@ -84,7 +85,7 @@ export function useCalendarEvents(selectedDate?: Date | null) {
   const deleteEvent = async (eventId: string) => {
     setIsSubmitting(true);
     try {
-      const success = await deleteCalendarEvent(eventId);
+      const success = await deleteCalendarEvent(eventId, agendaType);
       if (success) {
         await fetchEvents(); // Refresh events
       }
@@ -97,17 +98,17 @@ export function useCalendarEvents(selectedDate?: Date | null) {
   // Initial fetch on mount or when selected date changes
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents, selectedDate]);
+  }, [fetchEvents, selectedDate, agendaType]);
 
   // Setup polling every 30 seconds
   useEffect(() => {
     const intervalId = setInterval(() => {
-      console.log('Polling for calendar events...');
+      console.log(`Polling for ${agendaType} calendar events...`);
       fetchEvents();
     }, 30000); // 30 seconds
 
     return () => clearInterval(intervalId);
-  }, [fetchEvents]);
+  }, [fetchEvents, agendaType]);
 
   return { 
     events, 

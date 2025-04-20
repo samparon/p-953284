@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -9,14 +8,15 @@ import {
   ArrowLeft, RefreshCw, LoaderCircle
 } from 'lucide-react';
 import { useCalendarEvents, CalendarEvent, EventFormData } from '@/hooks/useCalendarEvents';
+import { useAgendaType, AgendaType } from '@/hooks/useAgendaType';
 import { EventFormDialog } from '@/components/EventFormDialog';
 import { DeleteEventDialog } from '@/components/DeleteEventDialog';
 import { Appointment, AppointmentFormData } from '@/types/calendar';
 import { CalendarSidebar } from '@/components/schedule/CalendarSidebar';
 import { EventsCard } from '@/components/schedule/EventsCard';
 import { AppointmentsSection } from '@/components/schedule/AppointmentsSection';
+import { AgendaTypeSelector } from '@/components/schedule/AgendaTypeSelector';
 
-// Dados mock para os agendamentos
 const mockAppointments: Appointment[] = [
   {
     id: 1,
@@ -95,6 +95,11 @@ const Schedule = () => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   
+  const { 
+    agendaType, 
+    changeAgendaType
+  } = useAgendaType();
+  
   const {
     events,
     isLoading: isEventsLoading,
@@ -105,7 +110,7 @@ const Schedule = () => {
     editEvent,
     deleteEvent,
     isSubmitting
-  } = useCalendarEvents(selectedDate);
+  } = useCalendarEvents(agendaType, selectedDate);
   
   const [appointments, setAppointments] = useState<Appointment[]>(mockAppointments);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -277,6 +282,17 @@ const Schedule = () => {
   const openEventLink = (url: string) => {
     window.open(url, '_blank');
   };
+
+  const getAgendaTitle = () => {
+    switch (agendaType) {
+      case 'banho':
+        return 'Agenda de Banho e Tosa';
+      case 'vet':
+        return 'Agenda de Consultas Veterinárias';
+      default:
+        return 'Agenda Completa';
+    }
+  };
   
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
@@ -288,7 +304,7 @@ const Schedule = () => {
               Voltar
             </Button>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
-              Agenda de Atendimentos
+              {getAgendaTitle()}
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -307,6 +323,13 @@ const Schedule = () => {
               </span>
             )}
           </div>
+        </div>
+
+        <div className="mb-6">
+          <AgendaTypeSelector 
+            selectedType={agendaType}
+            onTypeChange={changeAgendaType}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -333,6 +356,7 @@ const Schedule = () => {
               onEditEvent={openEditEventDialog}
               onDeleteEvent={openDeleteEventDialog}
               onOpenEventLink={openEventLink}
+              agendaType={agendaType}
             />
           </div>
         </div>
@@ -343,7 +367,7 @@ const Schedule = () => {
         onOpenChange={setIsAddEventDialogOpen}
         onSubmit={handleAddEvent}
         isSubmitting={isSubmitting}
-        title="Adicionar Evento"
+        title={`Adicionar Evento - ${getAgendaTitle()}`}
         description="Preencha os campos para adicionar um novo evento ao calendário."
         submitLabel="Salvar Evento"
       />
@@ -354,7 +378,7 @@ const Schedule = () => {
         onSubmit={handleEditEvent}
         isSubmitting={isSubmitting}
         event={selectedEvent || undefined}
-        title="Editar Evento"
+        title={`Editar Evento - ${getAgendaTitle()}`}
         description="Modifique os campos para atualizar este evento."
         submitLabel="Salvar Alterações"
       />

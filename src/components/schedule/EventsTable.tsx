@@ -8,9 +8,11 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { 
-  Edit, Trash2, Clock, Mail, LinkIcon, LoaderCircle 
+  Edit, Trash2, Clock, Mail, LinkIcon, LoaderCircle, 
+  Bath, Stethoscope, Calendar
 } from 'lucide-react';
 import { CalendarEvent } from '@/types/calendar';
+import { AgendaType } from '@/hooks/useAgendaType';
 
 interface EventsTableProps {
   events: CalendarEvent[];
@@ -18,6 +20,7 @@ interface EventsTableProps {
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (event: CalendarEvent) => void;
   onOpenEventLink: (url: string) => void;
+  agendaType?: AgendaType;
 }
 
 export function EventsTable({ 
@@ -25,7 +28,8 @@ export function EventsTable({
   isLoading, 
   onEditEvent, 
   onDeleteEvent, 
-  onOpenEventLink 
+  onOpenEventLink,
+  agendaType = 'geral'
 }: EventsTableProps) {
   
   const getStatusColor = (status: string, responseStatus?: string) => {
@@ -70,6 +74,17 @@ export function EventsTable({
         return 'Indefinido';
     }
   };
+
+  const getAgendaTypeIcon = () => {
+    switch (agendaType) {
+      case 'banho':
+        return <Bath className="h-4 w-4 text-blue-500" />;
+      case 'vet':
+        return <Stethoscope className="h-4 w-4 text-green-500" />;
+      default:
+        return <Calendar className="h-4 w-4 text-purple-500" />;
+    }
+  };
   
   return (
     <div className="overflow-x-auto">
@@ -77,7 +92,10 @@ export function EventsTable({
         <TableHeader>
           <TableRow>
             <TableHead>Horário</TableHead>
-            <TableHead>Serviço</TableHead>
+            <TableHead className="flex items-center gap-1">
+              {getAgendaTypeIcon()}
+              <span>Serviço</span>
+            </TableHead>
             <TableHead>Participante</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Ações</TableHead>

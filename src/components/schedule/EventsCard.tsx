@@ -2,6 +2,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { CalendarEvent } from '@/types/calendar';
+import { AgendaType } from '@/hooks/useAgendaType';
 import { 
   Card, CardHeader, CardTitle, CardDescription, 
   CardContent, CardFooter 
@@ -9,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Search, LoaderCircle } from 'lucide-react';
+import { AlertCircle, Search, LoaderCircle, Bath, Stethoscope, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EventsTable } from './EventsTable';
 
@@ -27,6 +28,7 @@ interface EventsCardProps {
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (event: CalendarEvent) => void;
   onOpenEventLink: (url: string) => void;
+  agendaType?: AgendaType;
 }
 
 export function EventsCard({
@@ -42,20 +44,46 @@ export function EventsCard({
   onTabChange,
   onEditEvent,
   onDeleteEvent,
-  onOpenEventLink
+  onOpenEventLink,
+  agendaType = 'geral'
 }: EventsCardProps) {
+  const getAgendaIcon = () => {
+    switch (agendaType) {
+      case 'banho':
+        return <Bath className="h-5 w-5 text-blue-500" />;
+      case 'vet':
+        return <Stethoscope className="h-5 w-5 text-green-500" />;
+      default:
+        return <Calendar className="h-5 w-5 text-purple-500" />;
+    }
+  };
+
+  const getAgendaTitle = () => {
+    switch (agendaType) {
+      case 'banho':
+        return 'Agenda de Banho e Tosa';
+      case 'vet':
+        return 'Agenda de Consultas Veterinárias';
+      default:
+        return 'Agenda PetShop Pet Paradise';
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <CardTitle>Agenda PetShop Pet Paradise</CardTitle>
-            <CardDescription>
-              {selectedTab === 'day' 
-                ? `Visualizando ${filteredEvents.length} eventos para ${selectedDate ? format(selectedDate, "dd/MM/yyyy") : 'hoje'}`
-                : `Visualizando todos os ${filteredEvents.length} eventos`
-              }
-            </CardDescription>
+          <div className="flex items-center gap-2">
+            {getAgendaIcon()}
+            <div>
+              <CardTitle>{getAgendaTitle()}</CardTitle>
+              <CardDescription>
+                {selectedTab === 'day' 
+                  ? `Visualizando ${filteredEvents.length} eventos para ${selectedDate ? format(selectedDate, "dd/MM/yyyy") : 'hoje'}`
+                  : `Visualizando todos os ${filteredEvents.length} eventos`
+                }
+              </CardDescription>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-2">
@@ -103,6 +131,7 @@ export function EventsCard({
             onEditEvent={onEditEvent}
             onDeleteEvent={onDeleteEvent}
             onOpenEventLink={onOpenEventLink}
+            agendaType={agendaType}
           />
         )}
       </CardContent>

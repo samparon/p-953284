@@ -2,15 +2,58 @@
 import { format, endOfDay } from 'date-fns';
 import { toast } from "sonner";
 import { CalendarEvent, EventFormData } from '@/types/calendar';
+import { AgendaType } from '@/hooks/useAgendaType';
 
-// API base URL
-const API_BASE_URL = 'https://webhook.n8nlabz.com.br/webhook/agenda';
+// Get endpoints from localStorage
+const getEndpoints = () => {
+  const savedEndpoints = localStorage.getItem('webhookEndpoints');
+  return savedEndpoints ? JSON.parse(savedEndpoints) : {};
+};
+
+// Get the correct endpoint URL based on agenda type
+const getApiUrl = (endpoint: string, agendaType: AgendaType = 'geral') => {
+  const endpoints = getEndpoints();
+  
+  // Map base endpoint names to their specific agenda type variants
+  switch (endpoint) {
+    case 'base':
+      switch (agendaType) {
+        case 'banho': return endpoints.agendaBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/banho';
+        case 'vet': return endpoints.agendaVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/vet';
+        case 'geral':
+        default: return endpoints.agenda || 'https://webhook.n8nlabz.com.br/webhook/agenda';
+      }
+    case 'adicionar':
+      switch (agendaType) {
+        case 'banho': return endpoints.agendaAdicionarBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/adicionar/banho';
+        case 'vet': return endpoints.agendaAdicionarVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/adicionar/vet';
+        case 'geral':
+        default: return endpoints.agendaAdicionar || 'https://webhook.n8nlabz.com.br/webhook/agenda/adicionar';
+      }
+    case 'alterar':
+      switch (agendaType) {
+        case 'banho': return endpoints.agendaAlterarBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/alterar/banho';
+        case 'vet': return endpoints.agendaAlterarVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/alterar/vet';
+        case 'geral':
+        default: return endpoints.agendaAlterar || 'https://webhook.n8nlabz.com.br/webhook/agenda/alterar';
+      }
+    case 'excluir':
+      switch (agendaType) {
+        case 'banho': return endpoints.agendaExcluirBanho || 'https://webhook.n8nlabz.com.br/webhook/agenda/excluir/banho';
+        case 'vet': return endpoints.agendaExcluirVet || 'https://webhook.n8nlabz.com.br/webhook/agenda/excluir/vet';
+        case 'geral':
+        default: return endpoints.agendaExcluir || 'https://webhook.n8nlabz.com.br/webhook/agenda/excluir';
+      }
+    default:
+      return endpoints.agenda || 'https://webhook.n8nlabz.com.br/webhook/agenda';
+  }
+};
 
 // Fetch events with GET method
-export async function fetchCalendarEvents(selectedDate?: Date | null) {
+export async function fetchCalendarEvents(agendaType: AgendaType = 'geral', selectedDate?: Date | null) {
   try {
     // Format date parameters for the API
-    let url = API_BASE_URL;
+    let url = getApiUrl('base', agendaType);
     
     // If a date is selected, add query parameters for start and end dates
     if (selectedDate) {
@@ -18,7 +61,7 @@ export async function fetchCalendarEvents(selectedDate?: Date | null) {
       const endDateTime = format(endOfDay(selectedDate), "yyyy-MM-dd'T'23:59:59.999xxx");
       
       url += `?start=${encodeURIComponent(startDateTime)}&end=${encodeURIComponent(endDateTime)}`;
-      console.log('Fetching events with date range:', { startDateTime, endDateTime });
+      console.log(`Fetching ${agendaType} events with date range:`, { startDateTime, endDateTime });
     }
     
     const response = await fetch(url);
@@ -30,13 +73,13 @@ export async function fetchCalendarEvents(selectedDate?: Date | null) {
     const data = await response.json();
     return Array.isArray(data) ? data : [];
   } catch (err) {
-    console.error('Error fetching calendar events:', err);
+    console.error(`Error fetching ${agendaType} calendar events:`, err);
     throw err;
   }
 }
 
 // Refresh events with POST method
-export async function refreshCalendarEventsPost(selectedDate?: Date | null) {
+export async function refreshCalendarEventsPost(agendaType: AgendaType = 'geral', selectedDate?: Date | null) {
   try {
     // Create payload with selected date if available
     const payload: any = {};
@@ -47,10 +90,10 @@ export async function refreshCalendarEventsPost(selectedDate?: Date | null) {
       
       payload.start = startDateTime;
       payload.end = endDateTime;
-      console.log('Refreshing events with payload:', payload);
+      console.log(`Refreshing ${agendaType} events with payload:`, payload);
     }
     
-    const response = await fetch(API_BASE_URL, {
+    const response = await fetch(getApiUrl('base', agendaType), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,14 +109,14 @@ export async function refreshCalendarEventsPost(selectedDate?: Date | null) {
     toast.success("Eventos atualizados com sucesso!");
     return Array.isArray(data) ? data : [];
   } catch (err) {
-    console.error('Error refreshing calendar events:', err);
+    console.error(`Error refreshing ${agendaType} calendar events:`, err);
     toast.error("Não conseguimos atualizar os eventos, tente novamente.");
     throw err;
   }
 }
 
 // Add a new event
-export async function addCalendarEvent(formData: EventFormData) {
+export async function addCalendarEvent(formData: EventFormData, agendaType: AgendaType = 'geral') {
   try {
     // Format the date and times for the API
     const { date, startTime, endTime, summary, description, email } = formData;
@@ -90,9 +133,9 @@ export async function addCalendarEvent(formData: EventFormData) {
       email
     };
     
-    console.log('Adding event with payload:', payload);
+    console.log(`Adding ${agendaType} event with payload:`, payload);
     
-    const response = await fetch(`${API_BASE_URL}/adicionar`, {
+    const response = await fetch(getApiUrl('adicionar', agendaType), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -107,14 +150,14 @@ export async function addCalendarEvent(formData: EventFormData) {
     toast.success("Evento adicionado com sucesso!");
     return true;
   } catch (err) {
-    console.error('Error adding event:', err);
+    console.error(`Error adding ${agendaType} event:`, err);
     toast.error("Erro ao adicionar evento. Tente novamente.");
     return false;
   }
 }
 
 // Edit an existing event
-export async function editCalendarEvent(eventId: string, formData: EventFormData) {
+export async function editCalendarEvent(eventId: string, formData: EventFormData, agendaType: AgendaType = 'geral') {
   try {
     // Format the date and times for the API
     const { date, startTime, endTime, summary, description, email } = formData;
@@ -132,9 +175,9 @@ export async function editCalendarEvent(eventId: string, formData: EventFormData
       email
     };
     
-    console.log('Updating event with payload:', payload);
+    console.log(`Updating ${agendaType} event with payload:`, payload);
     
-    const response = await fetch(`${API_BASE_URL}/alterar`, {
+    const response = await fetch(getApiUrl('alterar', agendaType), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -149,22 +192,22 @@ export async function editCalendarEvent(eventId: string, formData: EventFormData
     toast.success("Evento atualizado com sucesso!");
     return true;
   } catch (err) {
-    console.error('Error updating event:', err);
+    console.error(`Error updating ${agendaType} event:`, err);
     toast.error("Erro ao atualizar evento. Tente novamente.");
     return false;
   }
 }
 
 // Delete an event
-export async function deleteCalendarEvent(eventId: string) {
+export async function deleteCalendarEvent(eventId: string, agendaType: AgendaType = 'geral') {
   try {
     const payload = {
       id: eventId
     };
     
-    console.log('Deleting event with payload:', payload);
+    console.log(`Deleting ${agendaType} event with payload:`, payload);
     
-    const response = await fetch(`${API_BASE_URL}/excluir`, {
+    const response = await fetch(getApiUrl('excluir', agendaType), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -179,7 +222,7 @@ export async function deleteCalendarEvent(eventId: string) {
     toast.success("Evento excluído com sucesso!");
     return true;
   } catch (err) {
-    console.error('Error deleting event:', err);
+    console.error(`Error deleting ${agendaType} event:`, err);
     toast.error("Erro ao excluir evento. Tente novamente.");
     return false;
   }
