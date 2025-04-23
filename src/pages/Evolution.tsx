@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Link, PawPrint, Plus, QrCode, Loader2, RefreshCw, Check } from 'lucide-react';
@@ -16,6 +15,7 @@ const Evolution = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [instanceName, setInstanceName] = useState('');
+  const [webhookPath, setWebhookPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [confirmationStatus, setConfirmationStatus] = useState<'waiting' | 'confirmed' | 'failed' | null>(null);
@@ -210,20 +210,30 @@ const Evolution = () => {
       return;
     }
 
+    if (!webhookPath.trim()) {
+      toast({
+        title: "Caminho do webhook obrigatório",
+        description: "Por favor, informe o caminho do webhook.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     setQrCodeData(null);
     setConfirmationStatus(null);
     retryCountRef.current = 0; // Reset retry counter for new instance creation
     
     try {
-      console.log('Creating instance with name:', instanceName);
+      console.log('Creating instance:', { instanceName, webhookPath });
       const response = await fetch('https://webhook.n8nlabz.com.br/webhook/instanciaevolution', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          instanceName: instanceName.trim() 
+          instanceName: instanceName.trim(),
+          webhookPath: webhookPath.trim()
         }),
       });
       
@@ -433,6 +443,16 @@ const Evolution = () => {
                         className="dark:bg-gray-700"
                         value={instanceName}
                         onChange={(e) => setInstanceName(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="webhook-path">Caminho do Webhook</Label>
+                      <Input 
+                        id="webhook-path" 
+                        placeholder="Ex: /webhook/atendimento" 
+                        className="dark:bg-gray-700"
+                        value={webhookPath}
+                        onChange={(e) => setWebhookPath(e.target.value)}
                       />
                     </div>
                   </div>
