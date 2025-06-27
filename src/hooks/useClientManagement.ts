@@ -48,12 +48,12 @@ export const useClientManagement = () => {
           name: client.nome || 'Cliente sem nome',
           email: client.email,
           phone: client.telefone,
-          petName: client.nome_pet,
-          petSize: client.porte_pet,
-          petBreed: client.raca_pet,
+          petName: client.nome_pet || '',
+          petSize: client.porte_pet || '',
+          petBreed: client.raca_pet || '',
           cpfCnpj: client.cpf_cnpj,
           asaasCustomerId: client.asaas_customer_id,
-          payments: client.payments,
+          payments: client.payments || null,
           status: 'Active',
           notes: '',
           lastContact: client.created_at ? new Date(client.created_at).toLocaleDateString('pt-BR') : 'Desconhecido'
@@ -145,7 +145,7 @@ export const useClientManagement = () => {
         });
         
         try {
-          await fetch('https://webhook.n8nlabz.com.br/webhook/cria_usuario', {
+          await fetch('https://webhook.samparon.online/webhook/cria_usuario', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ export const useClientManagement = () => {
       });
       
       try {
-        await fetch('https://webhook.n8nlabz.com.br/webhook/edita_usuario', {
+        await fetch('https://webhook.samparon.online/webhook/edita_usuario', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -244,7 +244,7 @@ export const useClientManagement = () => {
       });
       
       try {
-        await fetch('https://webhook.n8nlabz.com.br/webhook/exclui_usuario', {
+        await fetch('https://webhook.samparon.online/webhook/exclui_usuario', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -300,7 +300,7 @@ export const useClientManagement = () => {
     if (!selectedContact) return;
     
     try {
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/envia_mensagem', {
+      const response = await fetch('https://webhook.samparon.online/webhook/envia_mensagem', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

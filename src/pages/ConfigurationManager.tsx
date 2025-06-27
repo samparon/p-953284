@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
 // Default webhook base URL
-const DEFAULT_WEBHOOK_BASE = "https://webhook.n8nlabz.com.br/webhook";
+const DEFAULT_WEBHOOK_BASE = "https://webhook.samparon.online/webhook";
 
 // Default endpoints configuration
 const defaultEndpoints = {

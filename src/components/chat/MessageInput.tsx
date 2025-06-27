@@ -23,7 +23,7 @@ const MessageInput = ({ selectedChat, selectedConversation }: MessageInputProps)
     try {
       setIsSending(true);
       
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/envia_mensagem', {
+      const response = await fetch('https://webhook.samparon.online/webhook/envia_mensagem', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,4 +81,3 @@ const MessageInput = ({ selectedChat, selectedConversation }: MessageInputProps)
 };
 
 export default MessageInput;
-

@@ -101,6 +101,10 @@ export type Database = {
           email: string | null
           id: number
           nome: string | null
+          nome_pet: string | null
+          payments: Json | null
+          porte_pet: string | null
+          raca_pet: string | null
           sessionid: string | null
           telefone: string | null
         }
@@ -111,6 +115,10 @@ export type Database = {
           email?: string | null
           id?: number
           nome?: string | null
+          nome_pet?: string | null
+          payments?: Json | null
+          porte_pet?: string | null
+          raca_pet?: string | null
           sessionid?: string | null
           telefone?: string | null
         }
@@ -121,8 +129,30 @@ export type Database = {
           email?: string | null
           id?: number
           nome?: string | null
+          nome_pet?: string | null
+          payments?: Json | null
+          porte_pet?: string | null
+          raca_pet?: string | null
           sessionid?: string | null
           telefone?: string | null
+        }
+        Relationships: []
+      }
+      dinastia_mensagens: {
+        Row: {
+          id: number
+          message: Json
+          session_id: string
+        }
+        Insert: {
+          id?: number
+          message: Json
+          session_id: string
+        }
+        Update: {
+          id?: number
+          message?: Json
+          session_id?: string
         }
         Relationships: []
       }
@@ -132,18 +162,21 @@ export type Database = {
           embedding: string | null
           id: number
           metadata: Json | null
+          titulo: string | null
         }
         Insert: {
           content?: string | null
           embedding?: string | null
           id?: number
           metadata?: Json | null
+          titulo?: string | null
         }
         Update: {
           content?: string | null
           embedding?: string | null
           id?: number
           metadata?: Json | null
+          titulo?: string | null
         }
         Relationships: []
       }
