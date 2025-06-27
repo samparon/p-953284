@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Link, PawPrint, Plus, QrCode, Loader2, RefreshCw, Check } from 'lucide-react';
@@ -34,7 +35,7 @@ const Evolution = () => {
   const checkConnectionStatus = async () => {
     try {
       console.log('Checking connection status for:', instanceName);
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/confirma', {
+      const response = await fetch('https://webhook.samparon.online/webhook/confirma', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +145,7 @@ const Evolution = () => {
     try {
       setIsLoading(true);
       console.log('Updating QR code for instance:', instanceName);
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/atualizar-qr-code', {
+      const response = await fetch('https://webhook.samparon.online/webhook/atualizar-qr-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,7 +227,7 @@ const Evolution = () => {
     
     try {
       console.log('Creating instance:', { instanceName, webhookPath });
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/instanciaevolution', {
+      const response = await fetch('https://webhook.samparon.online/webhook/instanciaevolution', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

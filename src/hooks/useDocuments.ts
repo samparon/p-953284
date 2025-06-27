@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,7 +111,7 @@ export const useDocuments = () => {
       // Call webhook to delete file from RAG system
       console.log('Enviando solicitação para excluir arquivo:', title);
       
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/excluir-arquivo-rag', {
+      const response = await fetch('https://webhook.samparon.online/webhook/excluir-arquivo-rag', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +148,7 @@ export const useDocuments = () => {
     try {
       console.log('Enviando solicitação para excluir toda a base de conhecimento');
       
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/excluir-rag', {
+      const response = await fetch('https://webhook.samparon.online/webhook/excluir-rag', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +187,7 @@ export const useDocuments = () => {
 
       console.log('Enviando arquivo para o webhook:', file.name, 'categoria:', category);
       
-      const response = await fetch('https://webhook.n8nlabz.com.br/webhook/envia_rag', {
+      const response = await fetch('https://webhook.samparon.online/webhook/envia_rag', {
         method: 'POST',
         body: formData,
       });
