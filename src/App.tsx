@@ -16,6 +16,10 @@ import NotFound from "./pages/NotFound";
 import ConfigurationManager from "./pages/ConfigurationManager";
 import Funcionarios from "./pages/Funcionarios";
 import PetsProntuarios from "./pages/PetsProntuarios";
+import Produtos from "./pages/Produtos";
+import Servicos from "./pages/Servicos";
+import Estoque from "./pages/Estoque";
+import Pedidos from "./pages/Pedidos";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -41,6 +45,10 @@ const App = () => (
               <Route path="/configuration" element={<ConfigurationManager />} />
               <Route path="/funcionarios" element={<Funcionarios />} />
               <Route path="/pets-prontuarios" element={<PetsProntuarios />} />
+              <Route path="/produtos" element={<Produtos />} />
+              <Route path="/servicos" element={<Servicos />} />
+              <Route path="/estoque" element={<Estoque />} />
+              <Route path="/pedidos" element={<Pedidos />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

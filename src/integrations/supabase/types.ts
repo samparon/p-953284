@@ -249,6 +249,53 @@ export type Database = {
         }
         Relationships: []
       }
+      estoque: {
+        Row: {
+          created_at: string
+          data_validade: string | null
+          id: string
+          lote: string | null
+          preco_custo: number | null
+          produto_id: string | null
+          quantidade: number
+          quantidade_minima: number | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_validade?: string | null
+          id?: string
+          lote?: string | null
+          preco_custo?: number | null
+          produto_id?: string | null
+          quantidade?: number
+          quantidade_minima?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_validade?: string | null
+          id?: string
+          lote?: string | null
+          preco_custo?: number | null
+          produto_id?: string | null
+          quantidade?: number
+          quantidade_minima?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estoque_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       imagens_drive: {
         Row: {
           created_at: string | null
@@ -312,6 +359,81 @@ export type Database = {
         }
         Relationships: []
       }
+      pedidos: {
+        Row: {
+          cliente_nome: string | null
+          cliente_telefone: string | null
+          created_at: string
+          data_entrega: string | null
+          id: string
+          items: Json
+          observacoes: string | null
+          status: string | null
+          tipo: string | null
+          updated_at: string
+          valor_total: number
+        }
+        Insert: {
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          created_at?: string
+          data_entrega?: string | null
+          id?: string
+          items?: Json
+          observacoes?: string | null
+          status?: string | null
+          tipo?: string | null
+          updated_at?: string
+          valor_total?: number
+        }
+        Update: {
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          created_at?: string
+          data_entrega?: string | null
+          id?: string
+          items?: Json
+          observacoes?: string | null
+          status?: string | null
+          tipo?: string | null
+          updated_at?: string
+          valor_total?: number
+        }
+        Relationships: []
+      }
+      produtos: {
+        Row: {
+          ativo: boolean
+          categoria: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          preco: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          categoria?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          preco?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          preco?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       purchase: {
         Row: {
           created_at: string
@@ -351,6 +473,42 @@ export type Database = {
           servico_frete?: string | null
           url_qrcode?: string | null
           value?: string
+        }
+        Relationships: []
+      }
+      servicos: {
+        Row: {
+          ativo: boolean
+          categoria: string | null
+          created_at: string
+          descricao: string | null
+          duracao_minutos: number | null
+          id: string
+          nome: string
+          preco: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          categoria?: string | null
+          created_at?: string
+          descricao?: string | null
+          duracao_minutos?: number | null
+          id?: string
+          nome: string
+          preco?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: string | null
+          created_at?: string
+          descricao?: string | null
+          duracao_minutos?: number | null
+          id?: string
+          nome?: string
+          preco?: number
+          updated_at?: string
         }
         Relationships: []
       }

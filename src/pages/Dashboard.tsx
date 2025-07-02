@@ -16,6 +16,10 @@ import ScheduleCard from '@/components/dashboard/ScheduleCard';
 import ConfigCard from '@/components/dashboard/ConfigCard';
 import FuncionariosCard from '@/components/dashboard/FuncionariosCard';
 import PetsCard from '@/components/dashboard/PetsCard';
+import ProdutosCard from '@/components/dashboard/ProdutosCard';
+import ServicosCard from '@/components/dashboard/ServicosCard';
+import EstoqueCard from '@/components/dashboard/EstoqueCard';
+import PedidosCard from '@/components/dashboard/PedidosCard';
 import { useDashboardRealtime } from '@/hooks/useDashboardRealtime';
 
 const Dashboard = () => {
@@ -100,6 +104,10 @@ const Dashboard = () => {
           <ScheduleCard />
           <FuncionariosCard />
           <PetsCard />
+          <ProdutosCard />
+          <ServicosCard />
+          <EstoqueCard />
+          <PedidosCard />
           <ConfigCard />
         </div>
       </main>
