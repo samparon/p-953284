@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, PawPrint, RefreshCw } from 'lucide-react';
@@ -21,13 +22,13 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const { data: realtimeData, isLoading } = useDashboardRealtime();
+  
+  // useDashboardRealtime doesn't return anything, it just sets up subscriptions
+  useDashboardRealtime();
 
   useEffect(() => {
-    if (realtimeData) {
-      setLastUpdated(new Date());
-    }
-  }, [realtimeData]);
+    setLastUpdated(new Date());
+  }, []);
 
   const handleRefresh = () => {
     setLastUpdated(new Date());
@@ -57,9 +58,8 @@ const Dashboard = () => {
               size="icon"
               onClick={handleRefresh}
               className="text-white hover:bg-white/10"
-              disabled={isLoading}
             >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className="h-5 w-5" />
             </Button>
             <Badge variant="outline" className="bg-white/10 text-white border-0 px-3 py-1">
               {user?.user_metadata?.name || user?.email}
@@ -90,15 +90,6 @@ const Dashboard = () => {
             </p>
           )}
         </div>
-
-        {isLoading && (
-          <Alert className="mb-6">
-            <Bell className="h-4 w-4" />
-            <AlertDescription>
-              Carregando dados em tempo real...
-            </AlertDescription>
-          </Alert>
-        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <MetricsCard />
