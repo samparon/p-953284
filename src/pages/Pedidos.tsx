@@ -67,7 +67,14 @@ const Pedidos = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPedidos(data || []);
+      
+      // Ensure items is always an array
+      const pedidosWithArrayItems = (data || []).map(pedido => ({
+        ...pedido,
+        items: Array.isArray(pedido.items) ? pedido.items : []
+      }));
+      
+      setPedidos(pedidosWithArrayItems);
     } catch (error) {
       console.error('Erro ao buscar pedidos:', error);
       toast({
