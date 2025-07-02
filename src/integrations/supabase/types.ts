@@ -93,6 +93,75 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          active: boolean | null
+          app: string | null
+          bairro: string | null
+          city: string | null
+          cliente_name: string | null
+          complemento: string | null
+          cpf: string | null
+          created_at: string
+          distance: string | null
+          email: string | null
+          id: number
+          lat: string | null
+          location: string | null
+          long: string | null
+          phone: string | null
+          street_name: string | null
+          street_number: string | null
+          uf: string | null
+          updated_at: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          app?: string | null
+          bairro?: string | null
+          city?: string | null
+          cliente_name?: string | null
+          complemento?: string | null
+          cpf?: string | null
+          created_at?: string
+          distance?: string | null
+          email?: string | null
+          id?: number
+          lat?: string | null
+          location?: string | null
+          long?: string | null
+          phone?: string | null
+          street_name?: string | null
+          street_number?: string | null
+          uf?: string | null
+          updated_at?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          app?: string | null
+          bairro?: string | null
+          city?: string | null
+          cliente_name?: string | null
+          complemento?: string | null
+          cpf?: string | null
+          created_at?: string
+          distance?: string | null
+          email?: string | null
+          id?: number
+          lat?: string | null
+          location?: string | null
+          long?: string | null
+          phone?: string | null
+          street_name?: string | null
+          street_number?: string | null
+          uf?: string | null
+          updated_at?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       dados_cliente: {
         Row: {
           asaas_customer_id: string | null
@@ -240,6 +309,48 @@ export type Database = {
           id?: number
           number?: string | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      purchase: {
+        Row: {
+          created_at: string
+          description: string | null
+          frete: string | null
+          id: number
+          invoiceNumber: string | null
+          pay: boolean
+          phone: string | null
+          qrcode: string | null
+          servico_frete: string | null
+          url_qrcode: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          frete?: string | null
+          id?: number
+          invoiceNumber?: string | null
+          pay?: boolean
+          phone?: string | null
+          qrcode?: string | null
+          servico_frete?: string | null
+          url_qrcode?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          frete?: string | null
+          id?: number
+          invoiceNumber?: string | null
+          pay?: boolean
+          phone?: string | null
+          qrcode?: string | null
+          servico_frete?: string | null
+          url_qrcode?: string | null
+          value?: string
         }
         Relationships: []
       }

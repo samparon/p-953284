@@ -14,6 +14,8 @@ import Evolution from "./pages/Evolution";
 import Schedule from "./pages/Schedule";
 import NotFound from "./pages/NotFound";
 import ConfigurationManager from "./pages/ConfigurationManager";
+import Funcionarios from "./pages/Funcionarios";
+import PetsProntuarios from "./pages/PetsProntuarios";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -37,6 +39,8 @@ const App = () => (
               <Route path="/evolution" element={<Evolution />} />
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/configuration" element={<ConfigurationManager />} />
+              <Route path="/funcionarios" element={<Funcionarios />} />
+              <Route path="/pets-prontuarios" element={<PetsProntuarios />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
