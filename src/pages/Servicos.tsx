@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Scissors, ArrowLeft } from 'lucide-react';
@@ -13,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { servicosAPI } from '@/utils/webhookApi';
 
 interface Servico {
   id: string;
@@ -58,12 +57,7 @@ const Servicos = () => {
 
   const fetchServicos = async () => {
     try {
-      const { data, error } = await supabase
-        .from('servicos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await servicosAPI.list();
       setServicos(data || []);
     } catch (error) {
       console.error('Erro ao buscar serviços:', error);
@@ -89,24 +83,13 @@ const Servicos = () => {
       };
 
       if (editingServico) {
-        const { error } = await supabase
-          .from('servicos')
-          .update(servicoData)
-          .eq('id', editingServico.id);
-
-        if (error) throw error;
-        
+        await servicosAPI.update({ ...servicoData, id: editingServico.id });
         toast({
           title: "Sucesso",
           description: "Serviço atualizado com sucesso!",
         });
       } else {
-        const { error } = await supabase
-          .from('servicos')
-          .insert([servicoData]);
-
-        if (error) throw error;
-        
+        await servicosAPI.create(servicoData);
         toast({
           title: "Sucesso",
           description: "Serviço criado com sucesso!",
@@ -144,18 +127,11 @@ const Servicos = () => {
     if (!confirm('Tem certeza que deseja excluir este serviço?')) return;
 
     try {
-      const { error } = await supabase
-        .from('servicos')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      
+      await servicosAPI.delete(id);
       toast({
         title: "Sucesso",
         description: "Serviço excluído com sucesso!",
       });
-      
       fetchServicos();
     } catch (error) {
       console.error('Erro ao excluir serviço:', error);

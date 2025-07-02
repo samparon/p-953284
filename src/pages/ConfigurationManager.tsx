@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 // Default webhook base URL
 const DEFAULT_WEBHOOK_BASE = "https://webhook.samparon.online/webhook";
@@ -33,6 +33,11 @@ const defaultEndpoints = {
   instanciaEvolution: `${DEFAULT_WEBHOOK_BASE}/instanciaevolution`,
   atualizarQrCode: `${DEFAULT_WEBHOOK_BASE}/atualizar-qr-code`,
   confirma: `${DEFAULT_WEBHOOK_BASE}/confirma`,
+  // Novos endpoints para as funcionalidades
+  produtos: `${DEFAULT_WEBHOOK_BASE}/produtos`,
+  servicos: `${DEFAULT_WEBHOOK_BASE}/servicos`,
+  estoque: `${DEFAULT_WEBHOOK_BASE}/estoque`,
+  pedidos: `${DEFAULT_WEBHOOK_BASE}/pedidos`,
 };
 
 const endpointGroups = {
@@ -68,6 +73,12 @@ const endpointGroups = {
   'Configuração Evolution': [
     { id: 'instanciaEvolution', label: 'Instância Evolution', key: 'instanciaEvolution' },
     { id: 'atualizarQrCode', label: 'Atualizar QR Code', key: 'atualizarQrCode' }
+  ],
+  'Configuração de Produtos e Serviços': [
+    { id: 'produtos', label: 'API de Produtos', key: 'produtos' },
+    { id: 'servicos', label: 'API de Serviços', key: 'servicos' },
+    { id: 'estoque', label: 'API de Estoque', key: 'estoque' },
+    { id: 'pedidos', label: 'API de Pedidos', key: 'pedidos' }
   ]
 };
 

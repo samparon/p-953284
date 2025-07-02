@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { produtosAPI } from '@/utils/webhookApi';
 
 interface Produto {
   id: string;
@@ -56,12 +56,7 @@ const Produtos = () => {
 
   const fetchProdutos = async () => {
     try {
-      const { data, error } = await supabase
-        .from('produtos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await produtosAPI.list();
       setProdutos(data || []);
     } catch (error) {
       console.error('Erro ao buscar produtos:', error);
@@ -86,24 +81,13 @@ const Produtos = () => {
       };
 
       if (editingProduto) {
-        const { error } = await supabase
-          .from('produtos')
-          .update(produtoData)
-          .eq('id', editingProduto.id);
-
-        if (error) throw error;
-        
+        await produtosAPI.update({ ...produtoData, id: editingProduto.id });
         toast({
           title: "Sucesso",
           description: "Produto atualizado com sucesso!",
         });
       } else {
-        const { error } = await supabase
-          .from('produtos')
-          .insert([produtoData]);
-
-        if (error) throw error;
-        
+        await produtosAPI.create(produtoData);
         toast({
           title: "Sucesso",
           description: "Produto criado com sucesso!",
@@ -140,18 +124,11 @@ const Produtos = () => {
     if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
     try {
-      const { error } = await supabase
-        .from('produtos')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      
+      await produtosAPI.delete(id);
       toast({
         title: "Sucesso",
         description: "Produto excluído com sucesso!",
       });
-      
       fetchProdutos();
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
