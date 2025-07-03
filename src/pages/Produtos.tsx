@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { produtosAPI } from '@/utils/webhookApi';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Produto {
   id: string;
@@ -56,7 +56,13 @@ const Produtos = () => {
 
   const fetchProdutos = async () => {
     try {
-      const data = await produtosAPI.list();
+      const { data, error } = await supabase
+        .from('produtos')
+        .select('*')
+        .eq('ativo', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
       setProdutos(data || []);
     } catch (error) {
       console.error('Erro ao buscar produtos:', error);
@@ -81,13 +87,22 @@ const Produtos = () => {
       };
 
       if (editingProduto) {
-        await produtosAPI.update({ ...produtoData, id: editingProduto.id });
+        const { error } = await supabase
+          .from('produtos')
+          .update(produtoData)
+          .eq('id', editingProduto.id);
+
+        if (error) throw error;
         toast({
           title: "Sucesso",
           description: "Produto atualizado com sucesso!",
         });
       } else {
-        await produtosAPI.create(produtoData);
+        const { error } = await supabase
+          .from('produtos')
+          .insert([produtoData]);
+
+        if (error) throw error;
         toast({
           title: "Sucesso",
           description: "Produto criado com sucesso!",
@@ -124,7 +139,12 @@ const Produtos = () => {
     if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
     try {
-      await produtosAPI.delete(id);
+      const { error } = await supabase
+        .from('produtos')
+        .update({ ativo: false })
+        .eq('id', id);
+
+      if (error) throw error;
       toast({
         title: "Sucesso",
         description: "Produto excluído com sucesso!",

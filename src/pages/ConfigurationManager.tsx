@@ -33,11 +33,6 @@ const defaultEndpoints = {
   instanciaEvolution: `${DEFAULT_WEBHOOK_BASE}/instanciaevolution`,
   atualizarQrCode: `${DEFAULT_WEBHOOK_BASE}/atualizar-qr-code`,
   confirma: `${DEFAULT_WEBHOOK_BASE}/confirma`,
-  // Novos endpoints para as funcionalidades
-  produtos: `${DEFAULT_WEBHOOK_BASE}/produtos`,
-  servicos: `${DEFAULT_WEBHOOK_BASE}/servicos`,
-  estoque: `${DEFAULT_WEBHOOK_BASE}/estoque`,
-  pedidos: `${DEFAULT_WEBHOOK_BASE}/pedidos`,
 };
 
 const endpointGroups = {
@@ -74,12 +69,6 @@ const endpointGroups = {
     { id: 'instanciaEvolution', label: 'Instância Evolution', key: 'instanciaEvolution' },
     { id: 'atualizarQrCode', label: 'Atualizar QR Code', key: 'atualizarQrCode' }
   ],
-  'Configuração de Produtos e Serviços': [
-    { id: 'produtos', label: 'API de Produtos', key: 'produtos' },
-    { id: 'servicos', label: 'API de Serviços', key: 'servicos' },
-    { id: 'estoque', label: 'API de Estoque', key: 'estoque' },
-    { id: 'pedidos', label: 'API de Pedidos', key: 'pedidos' }
-  ]
 };
 
 const ConfigurationManager = () => {
