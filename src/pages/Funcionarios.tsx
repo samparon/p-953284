@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,31 +12,22 @@ import { ArrowLeft, Plus, Users, Edit, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface Funcionario {
-  id: number;
+  id: string;
   nome: string;
   cargo: string;
   email: string;
   telefone: string;
   salario: number;
-  dataAdmissao: string;
+  data_admissao: string;
   status: 'ativo' | 'inativo';
+  created_at: string;
+  updated_at: string;
 }
 
 const Funcionarios = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [funcionarios, setFuncionarios] = useState<Funcionario[]>([
-    {
-      id: 1,
-      nome: 'João Silva',
-      cargo: 'Veterinário',
-      email: 'joao@petparadise.com',
-      telefone: '(11) 99999-9999',
-      salario: 5000,
-      dataAdmissao: '2023-01-15',
-      status: 'ativo'
-    }
-  ]);
+  const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingFuncionario, setEditingFuncionario] = useState<Funcionario | null>(null);
@@ -45,31 +37,64 @@ const Funcionarios = () => {
     email: '',
     telefone: '',
     salario: '',
-    dataAdmissao: '',
+    data_admissao: '',
     status: 'ativo' as 'ativo' | 'inativo'
   });
+
+  useEffect(() => {
+    fetchFuncionarios();
+  }, []);
+
+  const fetchFuncionarios = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('funcionarios')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setFuncionarios((data || []) as Funcionario[]);
+    } catch (error) {
+      console.error('Erro ao buscar funcionários:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar funcionários",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       const funcionarioData = {
-        ...formData,
+        nome: formData.nome,
+        cargo: formData.cargo,
+        email: formData.email,
+        telefone: formData.telefone,
         salario: parseFloat(formData.salario),
-        id: editingFuncionario ? editingFuncionario.id : Date.now()
+        data_admissao: formData.data_admissao,
+        status: formData.status
       };
 
-      // Simular chamada para N8N
-      console.log('Dados para N8N:', funcionarioData);
-      
       if (editingFuncionario) {
-        setFuncionarios(prev => prev.map(f => f.id === editingFuncionario.id ? funcionarioData as Funcionario : f));
+        const { error } = await supabase
+          .from('funcionarios')
+          .update(funcionarioData)
+          .eq('id', editingFuncionario.id);
+
+        if (error) throw error;
         toast({
           title: "Funcionário atualizado",
           description: "Os dados foram atualizados com sucesso.",
         });
       } else {
-        setFuncionarios(prev => [...prev, funcionarioData as Funcionario]);
+        const { error } = await supabase
+          .from('funcionarios')
+          .insert([funcionarioData]);
+
+        if (error) throw error;
         toast({
           title: "Funcionário adicionado",
           description: "Novo funcionário foi cadastrado com sucesso.",
@@ -78,7 +103,9 @@ const Funcionarios = () => {
       
       setIsDialogOpen(false);
       resetForm();
+      fetchFuncionarios();
     } catch (error) {
+      console.error('Erro ao salvar funcionário:', error);
       toast({
         title: "Erro",
         description: "Ocorreu um erro ao salvar os dados.",
@@ -94,7 +121,7 @@ const Funcionarios = () => {
       email: '',
       telefone: '',
       salario: '',
-      dataAdmissao: '',
+      data_admissao: '',
       status: 'ativo'
     });
     setEditingFuncionario(null);
@@ -108,19 +135,36 @@ const Funcionarios = () => {
       email: funcionario.email,
       telefone: funcionario.telefone,
       salario: funcionario.salario.toString(),
-      dataAdmissao: funcionario.dataAdmissao,
+      data_admissao: funcionario.data_admissao,
       status: funcionario.status
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    setFuncionarios(prev => prev.filter(f => f.id !== id));
-    toast({
-      title: "Funcionário removido",
-      description: "O funcionário foi removido com sucesso.",
-      variant: "destructive"
-    });
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este funcionário?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('funcionarios')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast({
+        title: "Funcionário removido",
+        description: "O funcionário foi removido com sucesso.",
+        variant: "destructive"
+      });
+      fetchFuncionarios();
+    } catch (error) {
+      console.error('Erro ao excluir funcionário:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir funcionário",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -213,12 +257,12 @@ const Funcionarios = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="dataAdmissao">Data de Admissão</Label>
+                  <Label htmlFor="data_admissao">Data de Admissão</Label>
                   <Input 
-                    id="dataAdmissao" 
+                    id="data_admissao" 
                     type="date"
-                    value={formData.dataAdmissao} 
-                    onChange={e => setFormData({...formData, dataAdmissao: e.target.value})} 
+                    value={formData.data_admissao} 
+                    onChange={e => setFormData({...formData, data_admissao: e.target.value})} 
                     required 
                   />
                 </div>
@@ -287,7 +331,7 @@ const Funcionarios = () => {
             </CardContent>
             <CardFooter>
               <p className="text-sm text-gray-500">
-                Admissão: {new Date(funcionario.dataAdmissao).toLocaleDateString()}
+                Admissão: {new Date(funcionario.data_admissao).toLocaleDateString()}
               </p>
             </CardFooter>
           </Card>

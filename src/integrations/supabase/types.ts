@@ -296,6 +296,45 @@ export type Database = {
           },
         ]
       }
+      funcionarios: {
+        Row: {
+          cargo: string
+          created_at: string
+          data_admissao: string
+          email: string
+          id: string
+          nome: string
+          salario: number
+          status: string
+          telefone: string
+          updated_at: string
+        }
+        Insert: {
+          cargo: string
+          created_at?: string
+          data_admissao: string
+          email: string
+          id?: string
+          nome: string
+          salario?: number
+          status?: string
+          telefone: string
+          updated_at?: string
+        }
+        Update: {
+          cargo?: string
+          created_at?: string
+          data_admissao?: string
+          email?: string
+          id?: string
+          nome?: string
+          salario?: number
+          status?: string
+          telefone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       imagens_drive: {
         Row: {
           created_at: string | null
