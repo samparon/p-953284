@@ -20,6 +20,7 @@ import ProdutosCard from '@/components/dashboard/ProdutosCard';
 import ServicosCard from '@/components/dashboard/ServicosCard';
 import EstoqueCard from '@/components/dashboard/EstoqueCard';
 import PedidosCard from '@/components/dashboard/PedidosCard';
+import ExportDataCard from '@/components/dashboard/ExportDataCard';
 import { useDashboardRealtime } from '@/hooks/useDashboardRealtime';
 
 const Dashboard = () => {
@@ -97,6 +98,7 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <MetricsCard />
+          <ExportDataCard />
           <ChatsCard />
           <KnowledgeCard />
           <ClientsCard />
