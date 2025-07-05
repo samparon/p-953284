@@ -27,33 +27,65 @@ export function useDashboardRealtime() {
       )
       .subscribe();
 
-    // Subscribe to changes in appointments/schedule
-    const scheduleSubscription = supabase
-      .channel('dashboard_schedule_changes')
+    // Subscribe to changes in sales table
+    const salesSubscription = supabase
+      .channel('dashboard_sales_changes')
       .on('postgres_changes', 
         { 
           event: '*', 
           schema: 'public', 
-          table: 'appointments' 
+          table: 'vendas' 
         }, 
-        async () => {
-          console.log('Schedule data changed');
+        async (payload) => {
+          console.log('Sales data changed:', payload);
           await refetchStats();
         }
       )
       .subscribe();
-      
-    // Subscribe to changes in services/products
+
+    // Subscribe to changes in products table
+    const productsSubscription = supabase
+      .channel('dashboard_products_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'produtos' 
+        }, 
+        async (payload) => {
+          console.log('Products data changed:', payload);
+          await refetchStats();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to changes in services table
     const servicesSubscription = supabase
       .channel('dashboard_services_changes')
       .on('postgres_changes', 
         { 
           event: '*', 
           schema: 'public', 
-          table: 'services' 
+          table: 'servicos' 
         }, 
-        async () => {
-          console.log('Services data changed');
+        async (payload) => {
+          console.log('Services data changed:', payload);
+          await refetchStats();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to changes in employees table
+    const employeesSubscription = supabase
+      .channel('dashboard_employees_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'funcionarios' 
+        }, 
+        async (payload) => {
+          console.log('Employees data changed:', payload);
           await refetchStats();
         }
       )
@@ -62,9 +94,10 @@ export function useDashboardRealtime() {
     return () => {
       console.log('Cleaning up dashboard realtime subscriptions');
       clientsSubscription.unsubscribe();
-      scheduleSubscription.unsubscribe();
+      salesSubscription.unsubscribe();
+      productsSubscription.unsubscribe();
       servicesSubscription.unsubscribe();
+      employeesSubscription.unsubscribe();
     };
   }, [refetchStats, fetchConversations]);
 }
-

@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +8,9 @@ export function useClientStats() {
     totalClients: 0,
     totalPets: 0,
     newClientsThisMonth: 0,
+    totalProducts: 0,
+    totalServices: 0,
+    totalEmployees: 0,
     monthlyGrowth: [],
     petBreeds: [],
     recentClients: []
@@ -29,10 +33,27 @@ export function useClientStats() {
         .select('*', { count: 'exact' })
         .not('nome_pet', 'is', null);
 
+      // Fetch total products
+      const { count: totalProducts } = await supabase
+        .from('produtos')
+        .select('*', { count: 'exact' })
+        .eq('ativo', true);
+
+      // Fetch total services
+      const { count: totalServices } = await supabase
+        .from('servicos')
+        .select('*', { count: 'exact' })
+        .eq('ativo', true);
+
+      // Fetch total employees
+      const { count: totalEmployees } = await supabase
+        .from('funcionarios')
+        .select('*', { count: 'exact' })
+        .eq('status', 'ativo');
+
       // Fetch new clients this month (from 1st of current month to today)
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       
       const { count: newClientsThisMonth } = await supabase
         .from('dados_cliente')
@@ -106,6 +127,9 @@ export function useClientStats() {
         totalClients: totalClients || 0,
         totalPets: totalPets || 0,
         newClientsThisMonth: newClientsThisMonth || 0,
+        totalProducts: totalProducts || 0,
+        totalServices: totalServices || 0,
+        totalEmployees: totalEmployees || 0,
         monthlyGrowth: monthlyGrowthData,
         petBreeds,
         recentClients

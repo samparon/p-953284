@@ -1,19 +1,23 @@
 
 import React, { useEffect } from 'react';
-import { LineChart, Users, Smartphone, PawPrint } from 'lucide-react';
+import { LineChart, Users, Smartphone, PawPrint, Package, Briefcase, UserCheck } from 'lucide-react';
 import { useClientStats } from '@/hooks/useClientStats';
+import { useSalesStats } from '@/hooks/useSalesStats';
 import { useDashboardRealtime } from '@/hooks/useDashboardRealtime';
 
 // Import components
 import DashboardHeader from '@/components/metrics/DashboardHeader';
 import StatCard from '@/components/metrics/StatCard';
+import SalesStatsCard from '@/components/metrics/SalesStatsCard';
 import ClientGrowthChart from '@/components/metrics/ClientGrowthChart';
 import PetTypesChart from '@/components/metrics/PetTypesChart';
 import ServicesBarChart from '@/components/metrics/ServicesBarChart';
 import RecentClientsTable from '@/components/metrics/RecentClientsTable';
+import ReportsExportCard from '@/components/metrics/ReportsExportCard';
 
 const MetricsDashboard = () => {
-  const { stats, loading, refetchStats } = useClientStats();
+  const { stats, loading: clientsLoading, refetchStats } = useClientStats();
+  const { salesStats, loading: salesLoading, refetchSalesStats } = useSalesStats();
   
   // Initialize real-time updates for the metrics dashboard
   useDashboardRealtime();
@@ -21,7 +25,8 @@ const MetricsDashboard = () => {
   // Fetch data when component mounts
   useEffect(() => {
     refetchStats();
-  }, [refetchStats]);
+    refetchSalesStats();
+  }, [refetchStats, refetchSalesStats]);
   
   // Use real data for monthly customers growth
   const monthlyCustomersData = stats.monthlyGrowth?.length > 0 
@@ -48,13 +53,18 @@ const MetricsDashboard = () => {
         { name: 'Não especificado', value: 100, color: '#8B5CF6' }
       ];
 
-  const petServicesData = [
-    { name: 'Banho', value: 45 },
-    { name: 'Tosa', value: 35 },
-    { name: 'Consulta', value: 20 },
-    { name: 'Vacinas', value: 30 },
-    { name: 'Compras', value: 25 },
-  ];
+  const petServicesData = salesStats.monthlySalesData?.length > 0
+    ? salesStats.monthlySalesData.map(item => ({
+        name: item.month,
+        value: item.sales
+      }))
+    : [
+        { name: 'Banho', value: 45 },
+        { name: 'Tosa', value: 35 },
+        { name: 'Consulta', value: 20 },
+        { name: 'Vacinas', value: 30 },
+        { name: 'Compras', value: 25 },
+      ];
   
   // Use real client data from the database
   const recentClientsData = stats.recentClients?.length > 0
@@ -73,18 +83,18 @@ const MetricsDashboard = () => {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-800 dark:text-white">
             <LineChart className="h-6 w-6 text-petshop-blue dark:text-blue-400" />
-            Dashboard de Métricas
+            Dashboard de Métricas Completo
           </h2>
         </div>
         
-        {/* Estatísticas em Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Estatísticas Gerais em Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard 
             title="Total de Clientes"
             value={stats.totalClients}
             icon={<Users />}
-            trend={`Aumento de ${Math.round((stats.newClientsThisMonth / (stats.totalClients - stats.newClientsThisMonth || 1)) * 100)}% este mês`}
-            loading={loading}
+            trend={`+${stats.newClientsThisMonth} este mês`}
+            loading={clientsLoading}
             iconBgClass="bg-purple-100 dark:bg-purple-900/30"
             iconTextClass="text-purple-600 dark:text-purple-400"
           />
@@ -94,9 +104,57 @@ const MetricsDashboard = () => {
             value={stats.totalPets}
             icon={<PawPrint />}
             trend={`Média de ${(stats.totalPets / (stats.totalClients || 1)).toFixed(1)} pets por cliente`}
-            loading={loading}
+            loading={clientsLoading}
             iconBgClass="bg-pink-100 dark:bg-pink-900/30"
             iconTextClass="text-pink-600 dark:text-pink-400"
+          />
+
+          <StatCard 
+            title="Produtos Ativos"
+            value={stats.totalProducts}
+            icon={<Package />}
+            trend="Produtos disponíveis"
+            loading={clientsLoading}
+            iconBgClass="bg-green-100 dark:bg-green-900/30"
+            iconTextClass="text-green-600 dark:text-green-400"
+          />
+
+          <StatCard 
+            title="Funcionários Ativos"
+            value={stats.totalEmployees}
+            icon={<UserCheck />}
+            trend="Equipe ativa"
+            loading={clientsLoading}
+            iconBgClass="bg-orange-100 dark:bg-orange-900/30"
+            iconTextClass="text-orange-600 dark:text-orange-400"
+          />
+        </div>
+
+        {/* Estatísticas de Vendas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <SalesStatsCard 
+            title="Total de Vendas"
+            value={salesStats.totalSales}
+            trend={`${salesStats.salesThisMonth} vendas este mês`}
+            loading={salesLoading}
+          />
+          
+          <SalesStatsCard 
+            title="Receita Total"
+            value={salesStats.totalRevenue}
+            trend={`R$ ${salesStats.revenueThisMonth.toLocaleString()} este mês`}
+            loading={salesLoading}
+            isCurrency={true}
+          />
+
+          <StatCard 
+            title="Serviços Ativos"
+            value={stats.totalServices}
+            icon={<Briefcase />}
+            trend="Serviços disponíveis"
+            loading={clientsLoading}
+            iconBgClass="bg-blue-100 dark:bg-blue-900/30"
+            iconTextClass="text-blue-600 dark:text-blue-400"
           />
           
           <StatCard 
@@ -104,21 +162,22 @@ const MetricsDashboard = () => {
             value={stats.newClientsThisMonth}
             icon={<Smartphone />}
             trend={`+${stats.newClientsThisMonth} comparado ao mês anterior`}
-            loading={loading}
-            iconBgClass="bg-blue-100 dark:bg-blue-900/30"
-            iconTextClass="text-blue-600 dark:text-blue-400"
+            loading={clientsLoading}
+            iconBgClass="bg-indigo-100 dark:bg-indigo-900/30"
+            iconTextClass="text-indigo-600 dark:text-indigo-400"
           />
         </div>
         
         {/* Gráficos e Tabelas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <ClientGrowthChart data={monthlyCustomersData} loading={loading} />
-          <PetTypesChart data={petBreedsData} loading={loading} />
+          <ClientGrowthChart data={monthlyCustomersData} loading={clientsLoading} />
+          <PetTypesChart data={petBreedsData} loading={clientsLoading} />
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <ServicesBarChart data={petServicesData} />
-          <RecentClientsTable clients={recentClientsData} loading={loading} />
+          <RecentClientsTable clients={recentClientsData} loading={clientsLoading} />
+          <ReportsExportCard />
         </div>
       </main>
     </div>
