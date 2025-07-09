@@ -32,44 +32,46 @@ export const useClientManagement = () => {
   const fetchClients = async () => {
     try {
       setLoadingContacts(true);
-      console.log('Fetching clients from Supabase...');
+      console.log('=== INICIANDO BUSCA DE CLIENTES ===');
       
-      // Test connection first
-      const { data: testData, error: testError } = await supabase
-        .from('dados_cliente')
-        .select('count')
-        .limit(1);
-      
-      if (testError) {
-        console.error('Supabase connection test failed:', testError);
-        toast({
-          title: "Erro de conexão",
-          description: `Erro ao conectar com o banco de dados: ${testError.message}`,
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      console.log('Supabase connection test successful');
-      
-      const { data, error } = await supabase
+      // Primeiro, verificar todos os dados disponíveis
+      const { data: allData, error: allError } = await supabase
         .from('dados_cliente')
         .select('*');
       
-      if (error) {
-        console.error('Error fetching clients:', error);
+      console.log('Dados brutos da tabela dados_cliente:', {
+        total: allData?.length || 0,
+        samples: allData?.slice(0, 5),
+        error: allError
+      });
+      
+      if (allError) {
+        console.error('Erro ao buscar dados brutos:', allError);
         toast({
-          title: "Erro ao carregar clientes",
-          description: `Erro ao buscar clientes: ${error.message}`,
+          title: "Erro de conexão",
+          description: `Erro ao conectar: ${allError.message}`,
           variant: "destructive"
         });
         return;
       }
       
-      console.log('Clients data fetched:', data?.length || 0, 'records');
+      if (!allData || allData.length === 0) {
+        console.log('Nenhum cliente encontrado na tabela dados_cliente');
+        setContacts([]);
+        return;
+      }
       
-      if (data) {
-        const formattedContacts: Contact[] = data.map(client => ({
+      // Transformar os dados para o formato esperado
+      const formattedContacts: Contact[] = allData.map(client => {
+        console.log('Processando cliente:', {
+          id: client.id,
+          nome: client.nome,
+          telefone: client.telefone,
+          email: client.email,
+          sessionid: client.sessionid
+        });
+        
+        return {
           id: client.id.toString(),
           name: client.nome || 'Cliente sem nome',
           email: client.email,
@@ -83,16 +85,20 @@ export const useClientManagement = () => {
           status: 'Active',
           notes: '',
           lastContact: client.created_at ? new Date(client.created_at).toLocaleDateString('pt-BR') : 'Desconhecido'
-        }));
-        
-        console.log('Formatted contacts:', formattedContacts.length);
-        setContacts(formattedContacts);
-      }
+        };
+      });
+      
+      console.log('=== BUSCA DE CLIENTES FINALIZADA ===');
+      console.log('Total de clientes formatados:', formattedContacts.length);
+      console.log('Primeiros 3 clientes:', formattedContacts.slice(0, 3));
+      
+      setContacts(formattedContacts);
+      
     } catch (error) {
-      console.error('Error fetching clients:', error);
+      console.error('Erro geral ao buscar clientes:', error);
       toast({
         title: "Erro ao carregar clientes",
-        description: "Ocorreu um erro ao buscar os clientes do banco de dados.",
+        description: "Erro interno do sistema",
         variant: "destructive"
       });
     } finally {

@@ -80,96 +80,144 @@ export function useConversations() {
   const fetchConversations = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('Fetching conversations...');
+      console.log('=== INICIANDO BUSCA DE CONVERSAS ===');
       
-      // Test connection first
-      const { data: testData, error: testError } = await supabase
-        .from('dados_cliente')
-        .select('count')
-        .limit(1);
-      
-      if (testError) {
-        console.error('Supabase connection test failed:', testError);
-        toast({
-          title: "Erro de conexão",
-          description: `Erro ao conectar com o banco de dados: ${testError.message}`,
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
-      
-      console.log('Supabase connection test successful');
-      
-      // Get chat histories first
-      const { data: chatHistoryData, error: chatHistoryError } = await supabase
+      // Primeiro, vamos buscar TODOS os dados das tabelas para debug
+      console.log('Verificando dados na tabela n8n_chat_histories...');
+      const { data: allChatHistory, error: allChatError } = await supabase
         .from('n8n_chat_histories')
-        .select('session_id')
-        .order('id', { ascending: false });
+        .select('*')
+        .limit(10);
       
-      if (chatHistoryError) {
-        console.error('Error fetching chat history:', chatHistoryError);
-        toast({
-          title: "Erro ao carregar histórico",
-          description: `Erro ao buscar histórico de chat: ${chatHistoryError.message}`,
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
+      console.log('Dados n8n_chat_histories:', {
+        total: allChatHistory?.length || 0,
+        samples: allChatHistory?.slice(0, 3),
+        error: allChatError
+      });
       
-      console.log('Chat history data:', chatHistoryData?.length || 0, 'records found');
-      
-      if (!chatHistoryData || chatHistoryData.length === 0) {
-        console.log('No chat history found');
-        setConversations([]);
-        setLoading(false);
-        return;
-      }
-      
-      const uniqueSessionIds = Array.from(new Set(
-        chatHistoryData.map(item => item.session_id).filter(Boolean)
-      ));
-      
-      console.log('Unique session IDs:', uniqueSessionIds.length);
-      
-      if (uniqueSessionIds.length === 0) {
-        console.log('No valid session IDs found');
-        setConversations([]);
-        setLoading(false);
-        return;
-      }
-      
-      // Get client data for these sessions
-      const { data: clientsData, error: clientsError } = await supabase
+      console.log('Verificando dados na tabela dados_cliente...');
+      const { data: allClients, error: allClientsError } = await supabase
         .from('dados_cliente')
         .select('*')
-        .in('sessionid', uniqueSessionIds)
-        .not('telefone', 'is', null);
+        .limit(10);
       
-      if (clientsError) {
-        console.error('Error fetching clients data:', clientsError);
+      console.log('Dados dados_cliente:', {
+        total: allClients?.length || 0,
+        samples: allClients?.slice(0, 3),
+        error: allClientsError
+      });
+      
+      if (allChatError || allClientsError) {
+        console.error('Erro ao buscar dados básicos:', { allChatError, allClientsError });
         toast({
-          title: "Erro ao carregar clientes",
-          description: `Erro ao buscar dados dos clientes: ${clientsError.message}`,
+          title: "Erro de conexão",
+          description: "Erro ao acessar o banco de dados",
           variant: "destructive"
         });
         setLoading(false);
         return;
       }
       
-      console.log('Clients data found:', clientsData?.length || 0, 'clients');
-      
-      if (!clientsData || clientsData.length === 0) {
-        console.log('No clients found for session IDs');
+      if (!allChatHistory || allChatHistory.length === 0) {
+        console.log('Nenhum histórico de chat encontrado na tabela n8n_chat_histories');
         setConversations([]);
         setLoading(false);
         return;
       }
       
-      // Create conversations from client data
-      const conversationsData: Conversation[] = clientsData.map((client: Client) => {
-        console.log('Processing client:', client.nome, 'session:', client.sessionid);
+      if (!allClients || allClients.length === 0) {
+        console.log('Nenhum client encontrado na tabela dados_cliente');
+        setConversations([]);
+        setLoading(false);
+        return;
+      }
+      
+      // Buscar sessões únicas do histórico de chat
+      const uniqueSessionIds = Array.from(new Set(
+        allChatHistory.map(item => item.session_id).filter(Boolean)
+      ));
+      
+      console.log('Session IDs únicos encontrados:', uniqueSessionIds.length, uniqueSessionIds.slice(0, 5));
+      
+      if (uniqueSessionIds.length === 0) {
+        console.log('Nenhum session_id válido encontrado');
+        setConversations([]);
+        setLoading(false);
+        return;
+      }
+      
+      // Buscar clientes que possuem session_id correspondente
+      const { data: matchingClients, error: clientsError } = await supabase
+        .from('dados_cliente')
+        .select('*')
+        .in('sessionid', uniqueSessionIds);
+      
+      console.log('Clientes com sessionid correspondente:', {
+        total: matchingClients?.length || 0,
+        samples: matchingClients?.slice(0, 3),
+        error: clientsError
+      });
+      
+      if (clientsError) {
+        console.error('Erro ao buscar clientes correspondentes:', clientsError);
+        toast({
+          title: "Erro ao carregar clientes",
+          description: `Erro: ${clientsError.message}`,
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+      
+      if (!matchingClients || matchingClients.length === 0) {
+        console.log('Nenhum cliente encontrado com sessionid correspondente');
+        
+        // Tentar busca alternativa - todos os clientes que têm sessionid
+        const { data: clientsWithSession, error: alternativeError } = await supabase
+          .from('dados_cliente')
+          .select('*')
+          .not('sessionid', 'is', null);
+        
+        console.log('Busca alternativa - clientes com sessionid:', {
+          total: clientsWithSession?.length || 0,
+          samples: clientsWithSession?.slice(0, 3),
+          error: alternativeError
+        });
+        
+        if (!clientsWithSession || clientsWithSession.length === 0) {
+          setConversations([]);
+          setLoading(false);
+          return;
+        }
+        
+        // Usar os clientes da busca alternativa
+        const conversationsData: Conversation[] = clientsWithSession.map((client: Client) => {
+          console.log('Processando cliente:', client.nome, 'session:', client.sessionid);
+          return {
+            id: client.sessionid,
+            name: client.nome || 'Cliente sem nome',
+            lastMessage: 'Carregando...',
+            time: 'Recente',
+            unread: 0,
+            avatar: '👤',
+            phone: client.telefone,
+            email: client.email || 'Sem email',
+            petName: client.nome_pet || 'Não informado',
+            petType: client.porte_pet || 'Não informado',
+            petBreed: client.raca_pet || 'Não informado',
+            sessionId: client.sessionid
+          };
+        });
+        
+        console.log('Conversas criadas (busca alternativa):', conversationsData.length);
+        setConversations(conversationsData);
+        setLoading(false);
+        return;
+      }
+      
+      // Criar conversas a partir dos clientes encontrados
+      const conversationsData: Conversation[] = matchingClients.map((client: Client) => {
+        console.log('Processando cliente:', client.nome, 'session:', client.sessionid);
         return {
           id: client.sessionid,
           name: client.nome || 'Cliente sem nome',
@@ -186,9 +234,9 @@ export function useConversations() {
         };
       });
       
-      console.log('Created conversations:', conversationsData.length);
+      console.log('Conversas criadas:', conversationsData.length);
       
-      // Get last message for each conversation
+      // Buscar última mensagem para cada conversa
       for (const conversation of conversationsData) {
         const { data: historyData, error: historyError } = await supabase
           .from('n8n_chat_histories')
@@ -233,13 +281,15 @@ export function useConversations() {
         }
       }
       
-      console.log('Final conversations with messages:', conversationsData);
+      console.log('=== BUSCA FINALIZADA ===');
+      console.log('Total de conversas encontradas:', conversationsData.length);
       setConversations(conversationsData);
+      
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      console.error('Erro geral ao buscar conversas:', error);
       toast({
         title: "Erro ao carregar conversas",
-        description: "Ocorreu um erro ao carregar as conversas. Verifique a conexão com o banco de dados.",
+        description: "Erro interno do sistema",
         variant: "destructive"
       });
     } finally {

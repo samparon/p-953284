@@ -136,36 +136,6 @@ export type Database = {
         }
         Relationships: []
       }
-      chats: {
-        Row: {
-          app: string | null
-          conversation_id: string | null
-          created_at: string | null
-          id: number
-          phone: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          app?: string | null
-          conversation_id?: string | null
-          created_at?: string | null
-          id?: number
-          phone?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          app?: string | null
-          conversation_id?: string | null
-          created_at?: string | null
-          id?: number
-          phone?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       configuracoes_clinica: {
         Row: {
           crn: string | null

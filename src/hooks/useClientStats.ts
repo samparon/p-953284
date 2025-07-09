@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,163 +21,165 @@ export function useClientStats() {
   const refetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('Fetching client stats from Supabase...');
+      console.log('=== INICIANDO BUSCA DE ESTATÍSTICAS ===');
       
-      // Test connection first
-      const { data: testData, error: testError } = await supabase
+      // Verificar dados brutos primeiro
+      console.log('Verificando dados das tabelas...');
+      
+      const { data: clientsData, error: clientsDataError } = await supabase
         .from('dados_cliente')
-        .select('count')
-        .limit(1);
+        .select('*');
       
-      if (testError) {
-        console.error('Supabase connection test failed:', testError);
+      console.log('Dados dados_cliente:', {
+        total: clientsData?.length || 0,
+        samples: clientsData?.slice(0, 3),
+        error: clientsDataError
+      });
+      
+      const { data: productsData, error: productsDataError } = await supabase
+        .from('produtos')
+        .select('*');
+      
+      console.log('Dados produtos:', {
+        total: productsData?.length || 0,
+        samples: productsData?.slice(0, 3),
+        error: productsDataError
+      });
+      
+      const { data: servicesData, error: servicesDataError } = await supabase
+        .from('servicos')
+        .select('*');
+      
+      console.log('Dados servicos:', {
+        total: servicesData?.length || 0,
+        samples: servicesData?.slice(0, 3),
+        error: servicesDataError
+      });
+      
+      const { data: employeesData, error: employeesDataError } = await supabase
+        .from('funcionarios')
+        .select('*');
+      
+      console.log('Dados funcionarios:', {
+        total: employeesData?.length || 0,
+        samples: employeesData?.slice(0, 3),
+        error: employeesDataError
+      });
+      
+      if (clientsDataError || productsDataError || servicesDataError || employeesDataError) {
+        console.error('Erros ao buscar dados:', {
+          clientsDataError,
+          productsDataError,
+          servicesDataError,
+          employeesDataError
+        });
         toast({
-          title: "Erro de conexão",
-          description: `Erro ao conectar com o banco de dados: ${testError.message}`,
+          title: "Erro ao carregar estatísticas",
+          description: "Erro ao acessar dados do banco",
           variant: "destructive"
         });
         setLoading(false);
         return;
       }
       
-      console.log('Supabase connection test successful');
+      // Calcular estatísticas
+      const totalClients = clientsData?.length || 0;
+      const totalPets = clientsData?.filter(client => client.nome_pet)?.length || 0;
+      const totalProducts = productsData?.filter(product => product.ativo)?.length || 0;
+      const totalServices = servicesData?.filter(service => service.ativo)?.length || 0;
+      const totalEmployees = employeesData?.filter(employee => employee.status === 'ativo')?.length || 0;
       
-      // Fetch total clients
-      const { count: totalClients, error: clientsError } = await supabase
-        .from('dados_cliente')
-        .select('*', { count: 'exact' });
-
-      if (clientsError) {
-        console.error('Error fetching total clients:', clientsError);
-        toast({
-          title: "Erro ao carregar estatísticas",
-          description: `Erro ao buscar total de clientes: ${clientsError.message}`,
-          variant: "destructive"
-        });
-      }
-
-      // Fetch total pets (assuming each client has at least one pet)
-      const { count: totalPets } = await supabase
-        .from('dados_cliente')
-        .select('*', { count: 'exact' })
-        .not('nome_pet', 'is', null);
-
-      // Fetch total products
-      const { count: totalProducts } = await supabase
-        .from('produtos')
-        .select('*', { count: 'exact' })
-        .eq('ativo', true);
-
-      // Fetch total services
-      const { count: totalServices } = await supabase
-        .from('servicos')
-        .select('*', { count: 'exact' })
-        .eq('ativo', true);
-
-      // Fetch total employees
-      const { count: totalEmployees } = await supabase
-        .from('funcionarios')
-        .select('*', { count: 'exact' })
-        .eq('status', 'ativo');
-
-      // Fetch new clients this month
+      // Calcular novos clientes este mês
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const newClientsThisMonth = clientsData?.filter(client => {
+        if (!client.created_at) return false;
+        const clientDate = new Date(client.created_at);
+        return clientDate >= firstDayOfMonth && clientDate <= today;
+      })?.length || 0;
       
-      const { count: newClientsThisMonth } = await supabase
-        .from('dados_cliente')
-        .select('*', { count: 'exact' })
-        .gte('created_at', firstDayOfMonth.toISOString())
-        .lte('created_at', today.toISOString());
-
-      // Fetch monthly growth data
-      const currentYear = new Date().getFullYear();
+      // Crescimento mensal
       const monthlyGrowthData = [];
-      
       for (let month = 0; month < 12; month++) {
-        const startOfMonth = new Date(currentYear, month, 1);
-        const endOfMonth = new Date(currentYear, month + 1, 0);
+        const startOfMonth = new Date(today.getFullYear(), month, 1);
+        const endOfMonth = new Date(today.getFullYear(), month + 1, 0);
         
-        const { count } = await supabase
-          .from('dados_cliente')
-          .select('*', { count: 'exact' })
-          .gte('created_at', startOfMonth.toISOString())
-          .lte('created_at', endOfMonth.toISOString());
+        const monthClients = clientsData?.filter(client => {
+          if (!client.created_at) return false;
+          const clientDate = new Date(client.created_at);
+          return clientDate >= startOfMonth && clientDate <= endOfMonth;
+        })?.length || 0;
         
         const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         monthlyGrowthData.push({
           month: monthNames[month],
-          clients: count || 0
+          clients: monthClients
         });
       }
-
-      // Fetch pet breeds data
-      const { data: petsData } = await supabase
-        .from('dados_cliente')
-        .select('raca_pet')
-        .not('raca_pet', 'is', null);
-
+      
+      // Raças de pets
       const breedCounts = {};
-      petsData?.forEach(pet => {
-        if (pet.raca_pet) {
-          breedCounts[pet.raca_pet] = (breedCounts[pet.raca_pet] || 0) + 1;
+      clientsData?.forEach(client => {
+        if (client.raca_pet) {
+          breedCounts[client.raca_pet] = (breedCounts[client.raca_pet] || 0) + 1;
         }
       });
-
+      
       const colors = [
         '#8B5CF6', '#EC4899', '#10B981', '#3B82F6', 
         '#F59E0B', '#EF4444', '#6366F1', '#14B8A6',
         '#F97316', '#8B5CF6', '#06B6D4', '#D946EF'
       ];
-
+      
       const petBreeds = Object.entries(breedCounts).map(([name, value], index) => ({
         name,
         value,
         color: colors[index % colors.length]
       }));
-
-      // Fetch recent clients
-      const { data: recentClientsData } = await supabase
-        .from('dados_cliente')
-        .select('id, nome, telefone, nome_pet, created_at')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      const recentClients = recentClientsData?.map(client => ({
-        id: client.id,
-        name: client.nome,
-        phone: client.telefone,
-        pets: client.nome_pet ? 1 : 0,
-        lastVisit: new Date(client.created_at).toLocaleDateString('pt-BR')
-      })) || [];
-
-      console.log('Stats fetched successfully:', {
-        totalClients: totalClients || 0,
-        totalPets: totalPets || 0,
-        newClientsThisMonth: newClientsThisMonth || 0,
-        totalProducts: totalProducts || 0,
-        totalServices: totalServices || 0,
-        totalEmployees: totalEmployees || 0
+      
+      // Clientes recentes
+      const recentClients = clientsData
+        ?.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+        ?.slice(0, 5)
+        ?.map(client => ({
+          id: client.id,
+          name: client.nome || 'Sem nome',
+          phone: client.telefone || 'Sem telefone',
+          pets: client.nome_pet ? 1 : 0,
+          lastVisit: client.created_at ? new Date(client.created_at).toLocaleDateString('pt-BR') : 'Desconhecido'
+        })) || [];
+      
+      console.log('Estatísticas calculadas:', {
+        totalClients,
+        totalPets,
+        newClientsThisMonth,
+        totalProducts,
+        totalServices,
+        totalEmployees,
+        petBreeds: petBreeds.length,
+        recentClients: recentClients.length
       });
-
-      // Update stats
+      
+      // Atualizar estatísticas
       setStats({
-        totalClients: totalClients || 0,
-        totalPets: totalPets || 0,
-        newClientsThisMonth: newClientsThisMonth || 0,
-        totalProducts: totalProducts || 0,
-        totalServices: totalServices || 0,
-        totalEmployees: totalEmployees || 0,
+        totalClients,
+        totalPets,
+        newClientsThisMonth,
+        totalProducts,
+        totalServices,
+        totalEmployees,
         monthlyGrowth: monthlyGrowthData,
         petBreeds,
         recentClients
       });
+      
+      console.log('=== BUSCA DE ESTATÍSTICAS FINALIZADA ===');
 
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('Erro geral ao buscar estatísticas:', error);
       toast({
         title: "Erro ao atualizar estatísticas",
-        description: "Ocorreu um erro ao atualizar as estatísticas.",
+        description: "Erro interno do sistema",
         variant: "destructive"
       });
     } finally {
