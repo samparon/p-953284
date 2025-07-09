@@ -38,6 +38,17 @@ const ChatsDashboard = () => {
     fetchConversations 
   });
 
+  // Debug effect to log conversations
+  useEffect(() => {
+    console.log('ChatsDashboard: Conversations updated:', conversations.length);
+    console.log('Conversations data:', conversations);
+  }, [conversations]);
+
+  // Debug effect to log loading states
+  useEffect(() => {
+    console.log('Loading states - conversations:', conversationsLoading, 'messages:', messagesLoading);
+  }, [conversationsLoading, messagesLoading]);
+
   // Find the currently selected conversation
   const selectedConversation = conversations.find(conv => conv.id === selectedChat);
 
@@ -124,6 +135,7 @@ const ChatsDashboard = () => {
 
   // Mark a conversation as read when selected
   const markConversationRead = (sessionId: string) => {
+    console.log('Marking conversation as read:', sessionId);
     setConversations(currentConversations => 
       currentConversations.map(conv => {
         if (conv.id === sessionId) {

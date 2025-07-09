@@ -7,8 +7,78 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
+      avaliacoes: {
+        Row: {
+          altura_cm: number | null
+          circunferencia_abdomen_cm: number | null
+          circunferencia_braco_cm: number | null
+          circunferencia_cintura_cm: number | null
+          circunferencia_quadril_cm: number | null
+          created_at: string
+          data_avaliacao: string
+          gordura_visceral: number | null
+          id: string
+          idade_metabolica: number | null
+          imc: number | null
+          massa_muscular_kg: number | null
+          observacoes: string | null
+          paciente_id: string
+          percentual_gordura: number | null
+          peso_kg: number | null
+        }
+        Insert: {
+          altura_cm?: number | null
+          circunferencia_abdomen_cm?: number | null
+          circunferencia_braco_cm?: number | null
+          circunferencia_cintura_cm?: number | null
+          circunferencia_quadril_cm?: number | null
+          created_at?: string
+          data_avaliacao: string
+          gordura_visceral?: number | null
+          id?: string
+          idade_metabolica?: number | null
+          imc?: number | null
+          massa_muscular_kg?: number | null
+          observacoes?: string | null
+          paciente_id: string
+          percentual_gordura?: number | null
+          peso_kg?: number | null
+        }
+        Update: {
+          altura_cm?: number | null
+          circunferencia_abdomen_cm?: number | null
+          circunferencia_braco_cm?: number | null
+          circunferencia_cintura_cm?: number | null
+          circunferencia_quadril_cm?: number | null
+          created_at?: string
+          data_avaliacao?: string
+          gordura_visceral?: number | null
+          id?: string
+          idade_metabolica?: number | null
+          imc?: number | null
+          massa_muscular_kg?: number | null
+          observacoes?: string | null
+          paciente_id?: string
+          percentual_gordura?: number | null
+          peso_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Cadastro_cliente: {
         Row: {
           created_at: string
@@ -95,6 +165,89 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      configuracoes_clinica: {
+        Row: {
+          crn: string | null
+          email: string | null
+          endereco: string | null
+          especialidade: string | null
+          id: string
+          logo_url: string | null
+          nome_clinica: string | null
+          nome_profissional: string | null
+          telefone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          crn?: string | null
+          email?: string | null
+          endereco?: string | null
+          especialidade?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_clinica?: string | null
+          nome_profissional?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          crn?: string | null
+          email?: string | null
+          endereco?: string | null
+          especialidade?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_clinica?: string | null
+          nome_profissional?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      consultas: {
+        Row: {
+          created_at: string
+          data_consulta: string
+          duracao_minutos: number | null
+          id: string
+          observacoes: string | null
+          paciente_id: string | null
+          status: string | null
+          tipo: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_consulta: string
+          duracao_minutos?: number | null
+          id?: string
+          observacoes?: string | null
+          paciente_id?: string | null
+          status?: string | null
+          tipo?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_consulta?: string
+          duracao_minutos?: number | null
+          id?: string
+          observacoes?: string | null
+          paciente_id?: string | null
+          status?: string | null
+          tipo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultas_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customers: {
         Row: {
@@ -359,6 +512,38 @@ export type Database = {
         }
         Relationships: []
       }
+      itens_refeicao: {
+        Row: {
+          alimento: string
+          id: string
+          observacoes: string | null
+          quantidade: string | null
+          refeicao_id: string
+        }
+        Insert: {
+          alimento: string
+          id?: string
+          observacoes?: string | null
+          quantidade?: string | null
+          refeicao_id: string
+        }
+        Update: {
+          alimento?: string
+          id?: string
+          observacoes?: string | null
+          quantidade?: string | null
+          refeicao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_refeicao_refeicao_id_fkey"
+            columns: ["refeicao_id"]
+            isOneToOne: false
+            referencedRelation: "refeicoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       n8n_chat_histories: {
         Row: {
           data: string | null
@@ -377,6 +562,45 @@ export type Database = {
           id?: number
           message?: Json
           session_id?: string
+        }
+        Relationships: []
+      }
+      pacientes: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          data_nascimento: string | null
+          email: string
+          genero: string | null
+          id: string
+          nome: string
+          objetivo: string | null
+          status: string | null
+          telefone: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          data_nascimento?: string | null
+          email: string
+          genero?: string | null
+          id?: string
+          nome: string
+          objetivo?: string | null
+          status?: string | null
+          telefone?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          data_nascimento?: string | null
+          email?: string
+          genero?: string | null
+          id?: string
+          nome?: string
+          objetivo?: string | null
+          status?: string | null
+          telefone?: string | null
         }
         Relationships: []
       }
@@ -443,6 +667,50 @@ export type Database = {
         }
         Relationships: []
       }
+      planos_nutricionais: {
+        Row: {
+          calorias_diarias: number | null
+          created_at: string
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          objetivo: string | null
+          observacoes: string | null
+          paciente_id: string
+          titulo: string
+        }
+        Insert: {
+          calorias_diarias?: number | null
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          objetivo?: string | null
+          observacoes?: string | null
+          paciente_id: string
+          titulo: string
+        }
+        Update: {
+          calorias_diarias?: number | null
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          objetivo?: string | null
+          observacoes?: string | null
+          paciente_id?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_nutricionais_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       produtos: {
         Row: {
           ativo: boolean
@@ -475,6 +743,63 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      prontuarios: {
+        Row: {
+          altura_cm: number | null
+          consulta_id: string | null
+          created_at: string
+          data_registro: string
+          id: string
+          massa_muscular_kg: number | null
+          observacoes_medicas: string | null
+          paciente_id: string | null
+          percentual_gordura: number | null
+          peso_kg: number | null
+          recomendacoes: string | null
+        }
+        Insert: {
+          altura_cm?: number | null
+          consulta_id?: string | null
+          created_at?: string
+          data_registro: string
+          id?: string
+          massa_muscular_kg?: number | null
+          observacoes_medicas?: string | null
+          paciente_id?: string | null
+          percentual_gordura?: number | null
+          peso_kg?: number | null
+          recomendacoes?: string | null
+        }
+        Update: {
+          altura_cm?: number | null
+          consulta_id?: string | null
+          created_at?: string
+          data_registro?: string
+          id?: string
+          massa_muscular_kg?: number | null
+          observacoes_medicas?: string | null
+          paciente_id?: string | null
+          percentual_gordura?: number | null
+          peso_kg?: number | null
+          recomendacoes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prontuarios_consulta_id_fkey"
+            columns: ["consulta_id"]
+            isOneToOne: false
+            referencedRelation: "consultas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prontuarios_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       purchase: {
         Row: {
@@ -517,6 +842,38 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      refeicoes: {
+        Row: {
+          horario: string | null
+          id: string
+          nome: string
+          ordem: number | null
+          plano_id: string
+        }
+        Insert: {
+          horario?: string | null
+          id?: string
+          nome: string
+          ordem?: number | null
+          plano_id: string
+        }
+        Update: {
+          horario?: string | null
+          id?: string
+          nome?: string
+          ordem?: number | null
+          plano_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refeicoes_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos_nutricionais"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       servicos: {
         Row: {
@@ -706,21 +1063,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -738,14 +1099,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -761,14 +1124,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -784,14 +1149,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -799,14 +1166,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

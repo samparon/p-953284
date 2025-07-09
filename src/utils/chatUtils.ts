@@ -1,3 +1,4 @@
+
 import { ChatMessage, N8nChatHistory, Conversation } from '@/types/chat';
 
 export const extractHourFromTimestamp = (timestamp: string): string => {
@@ -33,7 +34,9 @@ export const parseMessage = (chatHistory: N8nChatHistory): ChatMessage[] => {
   const parsedMessages: ChatMessage[] = [];
   
   try {
+    // Use the data field for timestamp
     const timestamp = chatHistory.data ? extractHourFromTimestamp(chatHistory.data) : '';
+    console.log('Parsing message with timestamp:', chatHistory.data);
     
     if (typeof chatHistory.message === 'string') {
       try {
