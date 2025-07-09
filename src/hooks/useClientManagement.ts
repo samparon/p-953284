@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Contact } from '@/types/client';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,14 +32,42 @@ export const useClientManagement = () => {
   const fetchClients = async () => {
     try {
       setLoadingContacts(true);
+      console.log('Fetching clients from Supabase...');
+      console.log('Supabase URL:', supabase.supabaseUrl);
+      
+      // Test connection first
+      const { data: testData, error: testError } = await supabase
+        .from('dados_cliente')
+        .select('count')
+        .limit(1);
+      
+      if (testError) {
+        console.error('Supabase connection test failed:', testError);
+        toast({
+          title: "Erro de conexão",
+          description: `Erro ao conectar com o banco de dados: ${testError.message}`,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      console.log('Supabase connection test successful');
       
       const { data, error } = await supabase
         .from('dados_cliente')
         .select('*');
       
       if (error) {
-        throw error;
+        console.error('Error fetching clients:', error);
+        toast({
+          title: "Erro ao carregar clientes",
+          description: `Erro ao buscar clientes: ${error.message}`,
+          variant: "destructive"
+        });
+        return;
       }
+      
+      console.log('Clients data fetched:', data?.length || 0, 'records');
       
       if (data) {
         const formattedContacts: Contact[] = data.map(client => ({
@@ -59,6 +86,7 @@ export const useClientManagement = () => {
           lastContact: client.created_at ? new Date(client.created_at).toLocaleDateString('pt-BR') : 'Desconhecido'
         }));
         
+        console.log('Formatted contacts:', formattedContacts.length);
         setContacts(formattedContacts);
       }
     } catch (error) {
@@ -119,8 +147,6 @@ export const useClientManagement = () => {
       if (error) throw error;
       
       if (data && data.length > 0) {
-        const newClientData = data[0];
-        
         fetchClients();
         
         setNewContact({

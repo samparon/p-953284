@@ -23,7 +23,7 @@ export function useConversations() {
       
       if (historyError) {
         console.error('Error fetching history for session:', sessionId, historyError);
-        throw historyError;
+        return;
       }
       
       console.log('History data found:', historyData?.length || 0, 'records for session:', sessionId);
@@ -57,7 +57,6 @@ export function useConversations() {
                 }
               }
               
-              // Use data field for timestamp
               const messageDate = chatHistory.data 
                 ? new Date(chatHistory.data) 
                 : new Date();
@@ -82,8 +81,29 @@ export function useConversations() {
     try {
       setLoading(true);
       console.log('Fetching conversations...');
+      console.log('Supabase URL:', supabase.supabaseUrl);
+      console.log('Supabase Key exists:', !!supabase.supabaseKey);
       
-      // First, get all unique session IDs from chat histories
+      // Test connection first
+      const { data: testData, error: testError } = await supabase
+        .from('dados_cliente')
+        .select('count')
+        .limit(1);
+      
+      if (testError) {
+        console.error('Supabase connection test failed:', testError);
+        toast({
+          title: "Erro de conexão",
+          description: `Erro ao conectar com o banco de dados: ${testError.message}`,
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+      
+      console.log('Supabase connection test successful');
+      
+      // Get chat histories first
       const { data: chatHistoryData, error: chatHistoryError } = await supabase
         .from('n8n_chat_histories')
         .select('session_id')
@@ -91,7 +111,13 @@ export function useConversations() {
       
       if (chatHistoryError) {
         console.error('Error fetching chat history:', chatHistoryError);
-        throw chatHistoryError;
+        toast({
+          title: "Erro ao carregar histórico",
+          description: `Erro ao buscar histórico de chat: ${chatHistoryError.message}`,
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
       }
       
       console.log('Chat history data:', chatHistoryData?.length || 0, 'records found');
@@ -116,7 +142,7 @@ export function useConversations() {
         return;
       }
       
-      // Now get client data for these sessions
+      // Get client data for these sessions
       const { data: clientsData, error: clientsError } = await supabase
         .from('dados_cliente')
         .select('*')
@@ -125,7 +151,13 @@ export function useConversations() {
       
       if (clientsError) {
         console.error('Error fetching clients data:', clientsError);
-        throw clientsError;
+        toast({
+          title: "Erro ao carregar clientes",
+          description: `Erro ao buscar dados dos clientes: ${clientsError.message}`,
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
       }
       
       console.log('Clients data found:', clientsData?.length || 0, 'clients');
@@ -195,7 +227,6 @@ export function useConversations() {
           
           conversation.lastMessage = lastMessageContent || 'Sem mensagem';
           
-          // Use data field for timestamp
           const messageDate = chatHistory.data 
             ? new Date(chatHistory.data) 
             : new Date();

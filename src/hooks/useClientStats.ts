@@ -21,11 +21,41 @@ export function useClientStats() {
   const refetchStats = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('Fetching client stats from Supabase...');
+      console.log('Supabase URL:', supabase.supabaseUrl);
+      
+      // Test connection first
+      const { data: testData, error: testError } = await supabase
+        .from('dados_cliente')
+        .select('count')
+        .limit(1);
+      
+      if (testError) {
+        console.error('Supabase connection test failed:', testError);
+        toast({
+          title: "Erro de conexão",
+          description: `Erro ao conectar com o banco de dados: ${testError.message}`,
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+      
+      console.log('Supabase connection test successful');
       
       // Fetch total clients
-      const { count: totalClients } = await supabase
+      const { count: totalClients, error: clientsError } = await supabase
         .from('dados_cliente')
         .select('*', { count: 'exact' });
+
+      if (clientsError) {
+        console.error('Error fetching total clients:', clientsError);
+        toast({
+          title: "Erro ao carregar estatísticas",
+          description: `Erro ao buscar total de clientes: ${clientsError.message}`,
+          variant: "destructive"
+        });
+      }
 
       // Fetch total pets (assuming each client has at least one pet)
       const { count: totalPets } = await supabase
@@ -51,7 +81,7 @@ export function useClientStats() {
         .select('*', { count: 'exact' })
         .eq('status', 'ativo');
 
-      // Fetch new clients this month (from 1st of current month to today)
+      // Fetch new clients this month
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       
@@ -121,6 +151,15 @@ export function useClientStats() {
         pets: client.nome_pet ? 1 : 0,
         lastVisit: new Date(client.created_at).toLocaleDateString('pt-BR')
       })) || [];
+
+      console.log('Stats fetched successfully:', {
+        totalClients: totalClients || 0,
+        totalPets: totalPets || 0,
+        newClientsThisMonth: newClientsThisMonth || 0,
+        totalProducts: totalProducts || 0,
+        totalServices: totalServices || 0,
+        totalEmployees: totalEmployees || 0
+      });
 
       // Update stats
       setStats({
