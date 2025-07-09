@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +21,6 @@ export function useClientStats() {
     try {
       setLoading(true);
       console.log('Fetching client stats from Supabase...');
-      console.log('Supabase URL:', supabase.supabaseUrl);
       
       // Test connection first
       const { data: testData, error: testError } = await supabase

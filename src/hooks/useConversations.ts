@@ -81,8 +81,6 @@ export function useConversations() {
     try {
       setLoading(true);
       console.log('Fetching conversations...');
-      console.log('Supabase URL:', supabase.supabaseUrl);
-      console.log('Supabase Key exists:', !!supabase.supabaseKey);
       
       // Test connection first
       const { data: testData, error: testError } = await supabase

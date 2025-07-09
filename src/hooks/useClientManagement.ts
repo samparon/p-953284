@@ -33,7 +33,6 @@ export const useClientManagement = () => {
     try {
       setLoadingContacts(true);
       console.log('Fetching clients from Supabase...');
-      console.log('Supabase URL:', supabase.supabaseUrl);
       
       // Test connection first
       const { data: testData, error: testError } = await supabase
